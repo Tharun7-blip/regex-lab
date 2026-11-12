@@ -2,7 +2,7 @@
 
 A modern, client-side developer toolkit for crafting, testing, and understanding regular expressions directly in the browser.
 
-> **Project Status:** Day 2 of 7 — Live Regex Tester Implemented
+> **Project Status:** Day 3 of 7 — Pattern Library Implemented
 
 ---
 
@@ -11,6 +11,7 @@ A modern, client-side developer toolkit for crafting, testing, and understanding
 **Regex Lab** is designed as a clean, fast, zero-dependency web application for developers working with regular expressions.
 - **Day 1:** Established the project structure, dark glassmorphism UI foundation, and Vanilla JS load verification.
 - **Day 2:** Added the **Live Regex Tester** with real-time pattern evaluation, flag toggles (`g`, `i`, `m`, `s`, `u`), inline match highlighting, syntax error reporting, and numbered/named capture group inspection.
+- **Day 3:** Added the **Pattern Library** with keyword search, category filters, clipboard copy, and one-click loading into the Live Regex Tester.
 
 ---
 

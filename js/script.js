@@ -2,7 +2,7 @@
 
 /**
  * Regex Lab – Developer Toolkit
- * Day 2 Script: App verification + Live Regex Tester
+ * Day 3 Script: App verification, Live Regex Tester & Pattern Library
  */
 
 const MAX_MATCHES = 500;
@@ -16,6 +16,81 @@ const SAMPLE_DATA = {
     "Invalid examples: user@localhost, plain-text.com"
   ].join("\n")
 };
+
+const PATTERN_LIBRARY = [
+  {
+    id: "email",
+    title: "Email Address",
+    category: "Validation",
+    flags: ["g"],
+    pattern: "([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})",
+    description: "Matches standard email addresses and captures username and domain.",
+    sampleText: "Reach us at hello@regexlab.dev or ops.team@company.org (not invalid@domain)."
+  },
+  {
+    id: "url",
+    title: "HTTP / HTTPS URL",
+    category: "Web & Network",
+    flags: ["g", "i"],
+    pattern: "https?:\\/\\/(?:www\\.)?[a-z0-9-]+(?:\\.[a-z0-9-]+)+(?::\\d+)?(?:\\/[^\\s]*)?",
+    description: "Matches web URLs with optional www, port numbers, and path segments.",
+    sampleText: "Docs: https://developer.mozilla.org/en-US/docs and http://localhost:8080/api?v=2"
+  },
+  {
+    id: "ipv4",
+    title: "IPv4 Address",
+    category: "Web & Network",
+    flags: ["g"],
+    pattern: "\\b(?:(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\b",
+    description: "Validates dotted-quad IPv4 addresses with octet bounds (0–255).",
+    sampleText: "Allowed: 192.168.1.1, 10.0.0.255, 127.0.0.1 | Invalid: 999.10.20.30"
+  },
+  {
+    id: "iso-date",
+    title: "ISO Date (YYYY-MM-DD)",
+    category: "Dates & IDs",
+    flags: ["g"],
+    pattern: "\\b(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])\\b",
+    description: "Matches ISO-8601 dates and captures year, month, and day groups.",
+    sampleText: "Releases: 2026-01-15, 2026-11-12 | Bad dates: 2026-13-01, 2026-00-10"
+  },
+  {
+    id: "uuid",
+    title: "UUID v4",
+    category: "Dates & IDs",
+    flags: ["g", "i"],
+    pattern: "\\b[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\\b",
+    description: "Matches RFC 4122 version 4 universally unique identifiers.",
+    sampleText: "Request ID: 550e8400-e29b-41d4-a716-446655440000\nBad: 550e8400-e29b-11d4-a716-446655440000"
+  },
+  {
+    id: "hex-color",
+    title: "Hex Color Code",
+    category: "Developer",
+    flags: ["g", "i"],
+    pattern: "#(?:[0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})\\b",
+    description: "Matches 3-digit, 6-digit, and 8-digit CSS hexadecimal color values.",
+    sampleText: "Theme colors: #8b5cf6, #3b82f6, #fff, #070913cc (skip #12345)"
+  },
+  {
+    id: "semver",
+    title: "Semantic Version (SemVer)",
+    category: "Developer",
+    flags: ["g"],
+    pattern: "\\bv?(\\d+)\\.(\\d+)\\.(\\d+)(?:-([0-9A-Za-z.-]+))?\\b",
+    description: "Captures major, minor, patch, and optional prerelease labels.",
+    sampleText: "Upgraded from v1.4.2 to 2.0.0-beta.1 (ignoring 1.2)"
+  },
+  {
+    id: "strong-password",
+    title: "Strong Password",
+    category: "Validation",
+    flags: ["m"],
+    pattern: "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$",
+    description: "Requires 8+ chars with lowercase, uppercase, digit, and symbol.",
+    sampleText: "WeakPass1\nStr0ng!Pass#2026\nonlylowercase"
+  }
+];
 
 /**
  * Escapes HTML special characters to safely render arbitrary text inside innerHTML.
@@ -199,6 +274,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const loadSampleBtn = document.getElementById("btn-load-sample");
   const clearTesterBtn = document.getElementById("btn-clear-tester");
 
+  // Pattern Library elements
+  const librarySearchInput = document.getElementById("library-search");
+  const libraryCategoryBtns = document.querySelectorAll(".category-pill");
+  const libraryGrid = document.getElementById("pattern-library-grid");
+  const libraryCountPill = document.getElementById("library-count-pill");
+  let activeCategory = "All";
+
   // 1. Update status indicators to confirm Vanilla JS loaded cleanly
   if (statusBadge && statusLabel) {
     statusBadge.classList.add("is-ready");
@@ -206,7 +288,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (verifyValue) {
-    verifyValue.textContent = "JS Verified (Day 2)";
+    verifyValue.textContent = "JS Verified (Day 3)";
   }
 
   // 2. Navigation link active state
@@ -355,12 +437,131 @@ document.addEventListener("DOMContentLoaded", () => {
     patternInput.focus();
   });
 
+  // 5. Pattern Library filtering, copy & load-in-tester integration
+  function loadPatternIntoTester(entry) {
+    if (!patternInput || !testStringInput) {
+      return;
+    }
+
+    patternInput.value = entry.pattern;
+    testStringInput.value = entry.sampleText;
+    flagCheckboxes.forEach((checkbox) => {
+      checkbox.checked = entry.flags.includes(checkbox.value);
+    });
+
+    evaluateRegex();
+    document.getElementById("tester")?.scrollIntoView({ behavior: "smooth" });
+  }
+
+  async function copyPatternToClipboard(pattern, buttonEl) {
+    try {
+      await navigator.clipboard.writeText(pattern);
+      const originalText = buttonEl.textContent;
+      buttonEl.textContent = "Copied!";
+      window.setTimeout(() => {
+        buttonEl.textContent = originalText;
+      }, 1400);
+    } catch {
+      buttonEl.textContent = "Copy failed";
+      window.setTimeout(() => {
+        buttonEl.textContent = "Copy";
+      }, 1400);
+    }
+  }
+
+  function renderPatternLibrary() {
+    if (!libraryGrid) {
+      return;
+    }
+
+    const query = (librarySearchInput?.value || "").trim().toLowerCase();
+    const filtered = PATTERN_LIBRARY.filter((entry) => {
+      const matchesCategory = activeCategory === "All" || entry.category === activeCategory;
+      const matchesQuery =
+        !query ||
+        entry.title.toLowerCase().includes(query) ||
+        entry.description.toLowerCase().includes(query) ||
+        entry.category.toLowerCase().includes(query) ||
+        entry.pattern.toLowerCase().includes(query);
+      return matchesCategory && matchesQuery;
+    });
+
+    if (libraryCountPill) {
+      libraryCountPill.textContent = `${filtered.length} ${
+        filtered.length === 1 ? "pattern" : "patterns"
+      }`;
+    }
+
+    if (filtered.length === 0) {
+      libraryGrid.innerHTML =
+        '<p class="empty-state">No patterns match your search or selected category.</p>';
+      return;
+    }
+
+    libraryGrid.innerHTML = filtered
+      .map(
+        (entry) => `
+          <article class="pattern-card" data-pattern-id="${escapeHtml(entry.id)}">
+            <div class="pattern-card-header">
+              <span class="pattern-category">${escapeHtml(entry.category)}</span>
+              <span class="pattern-flags-badge">/${escapeHtml(entry.flags.join("") || "—")}</span>
+            </div>
+            <h3 class="pattern-card-title">${escapeHtml(entry.title)}</h3>
+            <p class="pattern-card-desc">${escapeHtml(entry.description)}</p>
+            <div class="pattern-code-box" title="${escapeHtml(entry.pattern)}">
+              <code>${escapeHtml(entry.pattern)}</code>
+            </div>
+            <div class="pattern-card-actions">
+              <button type="button" class="btn btn-accent js-load-pattern">Load in Tester</button>
+              <button type="button" class="btn js-copy-pattern">Copy</button>
+            </div>
+          </article>
+        `
+      )
+      .join("");
+  }
+
+  libraryGrid?.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) {
+      return;
+    }
+
+    const card = target.closest(".pattern-card");
+    if (!card) {
+      return;
+    }
+
+    const entry = PATTERN_LIBRARY.find((item) => item.id === card.getAttribute("data-pattern-id"));
+    if (!entry) {
+      return;
+    }
+
+    if (target.classList.contains("js-load-pattern")) {
+      loadPatternIntoTester(entry);
+    } else if (target.classList.contains("js-copy-pattern")) {
+      copyPatternToClipboard(entry.pattern, target);
+    }
+  });
+
+  librarySearchInput?.addEventListener("input", renderPatternLibrary);
+
+  libraryCategoryBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      activeCategory = btn.dataset.category || "All";
+      libraryCategoryBtns.forEach((item) => item.classList.remove("is-active"));
+      btn.classList.add("is-active");
+      renderPatternLibrary();
+    });
+  });
+
   // Initial render
   evaluateRegex();
+  renderPatternLibrary();
 
-  // 5. Console verification message
+  // 6. Console verification message
   console.info(
-    "%cRegex Lab – Developer Toolkit%c initialized successfully (Day 2 · Live Regex Tester).",
+    "%cRegex Lab – Developer Toolkit%c initialized successfully (Day 3 · Live Regex Tester & Pattern Library).",
     "color: #a855f7; font-weight: bold;",
     "color: #93c5fd;"
   );
