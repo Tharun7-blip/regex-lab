@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="Regex Lab – Modern Developer Toolkit for testing, debugging, and building regular expressions in the browser."
+  />
+  <title>Regex Lab – Developer Toolkit</title>
+
+  <!-- Modern Typography (with clean system font fallbacks) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- Application Script -->
+  <script src="js/script.js" defer></script>
+</head>
+<body>
+  <!-- Ambient Background Glow -->
+  <div class="bg-ambient" aria-hidden="true">
+    <div class="bg-orb bg-orb-purple"></div>
+    <div class="bg-orb bg-orb-blue"></div>
+  </div>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="container navbar-inner">
+      <a href="#dashboard" class="brand" aria-label="Regex Lab Home">
+        <span class="brand-icon" aria-hidden="true">.*</span>
+        <span class="brand-text">
+          <span class="brand-title">Regex Lab</span>
+          <span class="brand-subtitle">Modern Developer Toolkit</span>
+        </span>
+      </a>
+
+      <nav class="nav-links" aria-label="Primary Navigation">
+        <a href="#dashboard" class="nav-link active">Dashboard</a>
+        <a href="#tester" class="nav-link">Regex Tester</a>
+        <a href="#tools" class="nav-link">Toolkit Modules</a>
+        <a href="#roadmap" class="nav-link">Roadmap</a>
+      </nav>
+
+      <div class="nav-status" id="app-status" role="status" aria-live="polite">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span class="status-label">Initializing...</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Dashboard Hero Section -->
+    <section id="dashboard" class="container dashboard-hero">
+      <div class="hero-card glass-card">
+        <div class="hero-badge">
+          <span class="mono-tag">Day 2 / 7</span>
+          <span>Live Regex Tester</span>
+        </div>
+
+        <h1 class="hero-title">Regex Lab</h1>
+        <p class="hero-subtitle">Modern Developer Toolkit</p>
+
+        <p class="hero-description">
+          A lightweight, client-side workspace for crafting, testing, and understanding
+          regular expressions. Built cleanly with HTML5, CSS3, and Vanilla JavaScript.
+        </p>
+
+        <div class="hero-meta">
+          <div class="meta-pill">
+            <span class="meta-label">Environment</span>
+            <span class="meta-value" id="js-verify-value">Checking JS...</span>
+          </div>
+          <div class="meta-pill">
+            <span class="meta-label">Architecture</span>
+            <span class="meta-value">100% Client-Side</span>
+          </div>
+          <div class="meta-pill">
+            <span class="meta-label">Current Phase</span>
+            <span class="meta-value">Day 2 · Live Tester Active</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Day 2: Live Regex Tester Module -->
+    <section id="tester" class="container tester-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Live Regex Tester</h2>
+          <p class="section-subtitle">
+            Test regular expressions in real time with flag controls, match highlights, and capture groups.
+          </p>
+        </div>
+        <div class="tester-actions">
+          <button type="button" class="btn btn-ghost" id="btn-load-sample">Load Sample</button>
+          <button type="button" class="btn btn-ghost" id="btn-clear-tester">Clear</button>
+        </div>
+      </div>
+
+      <div class="glass-card tester-shell">
+        <!-- Pattern & Flags Bar -->
+        <div class="pattern-bar">
+          <label for="regex-pattern" class="sr-only">Regular Expression Pattern</label>
+          <div class="pattern-input-wrap">
+            <span class="pattern-delimiter" aria-hidden="true">/</span>
+            <input
+              type="text"
+              id="regex-pattern"
+              class="pattern-input"
+              placeholder="Enter regex pattern (e.g. ([a-z0-9._-]+)@([a-z0-9.-]+\.[a-z]{2,}))"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <span class="pattern-delimiter" aria-hidden="true">/</span>
+            <span class="flags-preview" id="flags-preview" aria-label="Active flags">g</span>
+          </div>
+
+          <div class="flag-toggles" role="group" aria-label="Regex Flags">
+            <label class="flag-chip" title="Global search (g)">
+              <input type="checkbox" class="flag-checkbox" value="g" checked />
+              <span>g</span>
+            </label>
+            <label class="flag-chip" title="Case-insensitive (i)">
+              <input type="checkbox" class="flag-checkbox" value="i" />
+              <span>i</span>
+            </label>
+            <label class="flag-chip" title="Multiline anchors ^ and $ (m)">
+              <input type="checkbox" class="flag-checkbox" value="m" />
+              <span>m</span>
+            </label>
+            <label class="flag-chip" title="Dot matches newline (s)">
+              <input type="checkbox" class="flag-checkbox" value="s" />
+              <span>s</span>
+            </label>
+            <label class="flag-chip" title="Unicode mode (u)">
+              <input type="checkbox" class="flag-checkbox" value="u" />
+              <span>u</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Syntax Error Banner -->
+        <div class="error-banner" id="regex-error" role="alert" hidden></div>
+
+        <!-- Dual Pane: Test Input + Highlighted Output -->
+        <div class="tester-grid">
+          <div class="editor-pane">
+            <div class="pane-header">
+              <label for="test-string" class="pane-title">Test String</label>
+              <span class="pane-meta" id="input-length-meta">0 chars</span>
+            </div>
+            <textarea
+              id="test-string"
+              class="code-textarea"
+              rows="9"
+              placeholder="Paste or type test text here..."
+              spellcheck="false"
+            ></textarea>
+          </div>
+
+          <div class="editor-pane">
+            <div class="pane-header">
+              <span class="pane-title">Match Highlights</span>
+              <span class="pane-meta match-count-pill" id="match-count-pill">0 matches</span>
+            </div>
+            <div
+              id="match-highlight-output"
+              class="highlight-viewer"
+              aria-live="polite"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Match Details & Capture Groups -->
+        <div class="matches-panel">
+          <div class="pane-header">
+            <span class="pane-title">Match Breakdown &amp; Capture Groups</span>
+            <span class="pane-meta" id="pattern-validity-pill">Ready</span>
+          </div>
+          <div id="match-details-list" class="match-details-list">
+            <p class="empty-state">Enter a pattern and test string to inspect matches.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Toolkit Modules Overview -->
+    <section id="tools" class="container tools-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Toolkit Modules</h2>
+          <p class="section-subtitle">
+            Developer utilities scheduled across the 7-day build.
+          </p>
+        </div>
+        <span class="section-pill" id="module-feedback">1 active · 5 planned</span>
+      </div>
+
+      <div class="tools-grid">
+        <article class="tool-card glass-card is-active-module" tabindex="0" data-tool="Live Regex Tester" data-href="#tester">
+          <div class="tool-card-top">
+            <span class="tool-icon" aria-hidden="true">/g</span>
+            <span class="tool-badge badge-active">Active · Day 2</span>
+          </div>
+          <h3 class="tool-title">Live Regex Tester</h3>
+          <p class="tool-description">
+            Real-time pattern matching with inline match highlights, flag toggles, and capture group details.
+          </p>
+          <div class="tool-footer">
+            <span class="tool-status">Ready above ↑</span>
+          </div>
+        </article>
+
+        <article class="tool-card glass-card" tabindex="0" data-tool="Pattern Library">
+          <div class="tool-card-top">
+            <span class="tool-icon" aria-hidden="true">{}</span>
+            <span class="tool-badge">Planned · Day 3</span>
+          </div>
+          <h3 class="tool-title">Pattern Library</h3>
+          <p class="tool-description">
+            Curated collection of verified expressions for emails, URLs, dates, UUIDs, and IP addresses.
+          </p>
+          <div class="tool-footer">
+            <span class="tool-status">Placeholder module</span>
+          </div>
+        </article>
+
+        <article class="tool-card glass-card" tabindex="0" data-tool="Match & Replace">
+          <div class="tool-card-top">
+            <span class="tool-icon" aria-hidden="true">⇄</span>
+            <span class="tool-badge">Planned · Day 4</span>
+          </div>
+          <h3 class="tool-title">Match &amp; Replace</h3>
+          <p class="tool-description">
+            Interactive substitution sandbox to preview replacements using backreferences and tokens.
+          </p>
+          <div class="tool-footer">
+            <span class="tool-status">Placeholder module</span>
+          </div>
+        </article>
+
+        <article class="tool-card glass-card" tabindex="0" data-tool="Regex Explainer">
+          <div class="tool-card-top">
+            <span class="tool-icon" aria-hidden="true">?!</span>
+            <span class="tool-badge">Planned · Day 5</span>
+          </div>
+          <h3 class="tool-title">Regex Explainer</h3>
+          <p class="tool-description">
+            Token-by-token breakdown translating complex expressions into clear, readable descriptions.
+          </p>
+          <div class="tool-footer">
+            <span class="tool-status">Placeholder module</span>
+          </div>
+        </article>
+
+        <article class="tool-card glass-card" tabindex="0" data-tool="Code Generator">
+          <div class="tool-card-top">
+            <span class="tool-icon" aria-hidden="true">&lt;/&gt;</span>
+            <span class="tool-badge">Planned · Day 6</span>
+          </div>
+          <h3 class="tool-title">Code Generator</h3>
+          <p class="tool-description">
+            Export tested regular expressions into ready-to-paste snippets for JavaScript, Python, and Go.
+          </p>
+          <div class="tool-footer">
+            <span class="tool-status">Placeholder module</span>
+          </div>
+        </article>
+
+        <article class="tool-card glass-card" tabindex="0" data-tool="Saved Snippets">
+          <div class="tool-card-top">
+            <span class="tool-icon" aria-hidden="true">★</span>
+            <span class="tool-badge">Planned · Day 7</span>
+          </div>
+          <h3 class="tool-title">Saved Snippets</h3>
+          <p class="tool-description">
+            Browser-based local storage to bookmark favorite patterns and export test suites as JSON.
+          </p>
+          <div class="tool-footer">
+            <span class="tool-status">Placeholder module</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Build Roadmap Overview -->
+    <section id="roadmap" class="container roadmap-section">
+      <div class="glass-card roadmap-card">
+        <h2 class="section-title">Development Progress</h2>
+        <p class="section-subtitle">
+          Incremental 7-day build using HTML5, CSS3, and Vanilla JavaScript.
+        </p>
+        <ul class="checklist">
+          <li class="checklist-item done">Day 1: Project structure &amp; glassmorphism shell</li>
+          <li class="checklist-item done">Day 2: Live Regex Tester, highlights &amp; capture groups</li>
+          <li class="checklist-item pending">Day 3: Pattern Library &amp; Cheatsheet</li>
+          <li class="checklist-item pending">Days 4–7: Replace, Explainer, Export &amp; Storage</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <p class="footer-brand">
+        <strong>Regex Lab</strong> · Modern Developer Toolkit
+      </p>
+      <p class="footer-meta">
+        Day 2 Build · HTML5, CSS3 &amp; Vanilla JavaScript
+      </p>
+    </div>
+  </footer>
+</body>
+</html>
