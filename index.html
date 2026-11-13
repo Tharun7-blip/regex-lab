@@ -44,8 +44,7 @@
       <nav class="nav-links" aria-label="Primary Navigation">
         <a href="#dashboard" class="nav-link active">Dashboard</a>
         <a href="#tester" class="nav-link">Regex Tester</a>
-        <a href="#library" class="nav-link">Pattern Library</a>
-        <a href="#tools" class="nav-link">Toolkit Modules</a>
+        <a href="#tools" class="nav-link">Planned Tools</a>
         <a href="#roadmap" class="nav-link">Roadmap</a>
       </nav>
 
@@ -62,8 +61,8 @@
     <section id="dashboard" class="container dashboard-hero">
       <div class="hero-card glass-card">
         <div class="hero-badge">
-          <span class="mono-tag">Day 3 / 7</span>
-          <span>Pattern Library</span>
+          <span class="mono-tag">Day 2 / 7</span>
+          <span>Live Regex Tester</span>
         </div>
 
         <h1 class="hero-title">Regex Lab</h1>
@@ -85,7 +84,7 @@
           </div>
           <div class="meta-pill">
             <span class="meta-label">Current Phase</span>
-            <span class="meta-value">Day 3 · Pattern Library Active</span>
+            <span class="meta-value">Day 2 · Live Tester Active</span>
           </div>
         </div>
       </div>
@@ -101,7 +100,15 @@
           </p>
         </div>
         <div class="tester-actions">
-          <button type="button" class="btn btn-ghost" id="btn-load-sample">Load Sample</button>
+          <label for="sample-select" class="sr-only">Choose sample regex pattern</label>
+          <select id="sample-select" class="sample-select" aria-label="Sample regex patterns">
+            <option value="digits">Sample: Digits (\d+)</option>
+            <option value="uppercase">Sample: Uppercase ([A-Z])</option>
+            <option value="words">Sample: Words &amp; Numbers (\w+)</option>
+            <option value="named-groups">Sample: Named Date Groups</option>
+            <option value="anchor">Sample: Line Start (^Hello)</option>
+          </select>
+          <button type="button" class="btn btn-accent" id="btn-load-sample">Load Sample</button>
           <button type="button" class="btn btn-ghost" id="btn-clear-tester">Clear</button>
         </div>
       </div>
@@ -116,7 +123,7 @@
               type="text"
               id="regex-pattern"
               class="pattern-input"
-              placeholder="Enter regex pattern (e.g. ([a-z0-9._-]+)@([a-z0-9.-]+\.[a-z]{2,}))"
+              placeholder="Enter regex pattern (e.g. \d+, [A-Z], (?<year>\d{4})-(\d{2}))"
               autocomplete="off"
               spellcheck="false"
             />
@@ -180,54 +187,16 @@
           </div>
         </div>
 
-        <!-- Match Details & Capture Groups -->
+        <!-- Match Breakdown & Capture Groups -->
         <div class="matches-panel">
           <div class="pane-header">
             <span class="pane-title">Match Breakdown &amp; Capture Groups</span>
-            <span class="pane-meta" id="pattern-validity-pill">Ready</span>
+            <span class="pane-meta" id="pattern-validity-pill">Waiting for pattern</span>
           </div>
           <div id="match-details-list" class="match-details-list">
             <p class="empty-state">Enter a pattern and test string to inspect matches.</p>
           </div>
         </div>
-      </div>
-    </section>
-
-    <!-- Day 3: Pattern Library Module -->
-    <section id="library" class="container library-section">
-      <div class="section-header">
-        <div>
-          <h2 class="section-title">Pattern Library</h2>
-          <p class="section-subtitle">
-            Browse verified developer expressions and load any preset directly into the Live Regex Tester.
-          </p>
-        </div>
-        <span class="section-pill" id="library-count-pill">8 patterns</span>
-      </div>
-
-      <div class="glass-card library-shell">
-        <div class="library-controls">
-          <div class="library-search-wrap">
-            <label for="library-search" class="sr-only">Search regex patterns</label>
-            <input
-              type="search"
-              id="library-search"
-              class="library-search"
-              placeholder="Search patterns (e.g. email, url, uuid, date, ipv4)..."
-              autocomplete="off"
-            />
-          </div>
-
-          <div class="category-pills" id="library-categories" role="group" aria-label="Filter by category">
-            <button type="button" class="category-pill is-active" data-category="All">All</button>
-            <button type="button" class="category-pill" data-category="Validation">Validation</button>
-            <button type="button" class="category-pill" data-category="Web &amp; Network">Web &amp; Network</button>
-            <button type="button" class="category-pill" data-category="Dates &amp; IDs">Dates &amp; IDs</button>
-            <button type="button" class="category-pill" data-category="Developer">Developer</button>
-          </div>
-        </div>
-
-        <div id="pattern-library-grid" class="library-grid"></div>
       </div>
     </section>
 
@@ -240,7 +209,7 @@
             Developer utilities scheduled across the 7-day build.
           </p>
         </div>
-        <span class="section-pill" id="module-feedback">2 active · 4 planned</span>
+        <span class="section-pill" id="module-feedback">1 active · 5 planned</span>
       </div>
 
       <div class="tools-grid">
@@ -258,17 +227,17 @@
           </div>
         </article>
 
-        <article class="tool-card glass-card is-active-module" tabindex="0" data-tool="Pattern Library" data-href="#library">
+        <article class="tool-card glass-card" tabindex="0" data-tool="Pattern Library">
           <div class="tool-card-top">
             <span class="tool-icon" aria-hidden="true">{}</span>
-            <span class="tool-badge badge-active">Active · Day 3</span>
+            <span class="tool-badge">Planned · Day 3</span>
           </div>
           <h3 class="tool-title">Pattern Library</h3>
           <p class="tool-description">
             Curated collection of verified expressions for emails, URLs, dates, UUIDs, and IP addresses.
           </p>
           <div class="tool-footer">
-            <span class="tool-status">Ready above ↑</span>
+            <span class="tool-status">Placeholder module</span>
           </div>
         </article>
 
@@ -340,7 +309,7 @@
         <ul class="checklist">
           <li class="checklist-item done">Day 1: Project structure &amp; glassmorphism shell</li>
           <li class="checklist-item done">Day 2: Live Regex Tester, highlights &amp; capture groups</li>
-          <li class="checklist-item done">Day 3: Pattern Library with search, filters &amp; presets</li>
+          <li class="checklist-item pending">Day 3: Pattern Library &amp; Cheatsheet</li>
           <li class="checklist-item pending">Days 4–7: Replace, Explainer, Export &amp; Storage</li>
         </ul>
       </div>
@@ -354,7 +323,7 @@
         <strong>Regex Lab</strong> · Modern Developer Toolkit
       </p>
       <p class="footer-meta">
-        Day 3 Build · HTML5, CSS3 &amp; Vanilla JavaScript
+        Day 2 Build · HTML5, CSS3 &amp; Vanilla JavaScript
       </p>
     </div>
   </footer>
