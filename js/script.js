@@ -2,7 +2,7 @@
 
 /**
  * Regex Lab – Developer Toolkit
- * Day 2 Script: App verification + Live Regex Tester
+ * Day 3 Script: App Verification + Live Regex Tester + Regex Pattern Library
  */
 
 const MAX_MATCHES = 500;
@@ -26,7 +26,7 @@ const SAMPLE_PATTERNS = {
   "named-groups": {
     pattern: "(?<year>\\d{4})-(?<month>\\d{2})-(?<day>\\d{2})",
     flags: ["g"],
-    text: "Launch date: 2026-11-12, Backup date: 2026-12-01"
+    text: "Launch date: 2026-11-13, Backup date: 2026-12-01"
   },
   anchor: {
     pattern: "^Hello",
@@ -36,12 +36,301 @@ const SAMPLE_PATTERNS = {
 };
 
 /**
+ * 26 Curated patterns spanning the 7 required categories:
+ * - Basic Patterns
+ * - Numbers
+ * - Text
+ * - Email and Web
+ * - Password
+ * - Date and Time
+ * - Programming
+ */
+const PATTERN_LIBRARY = [
+  // 1. Basic Patterns
+  {
+    id: "exact-word",
+    name: "Exact Word Match",
+    category: "Basic Patterns",
+    regex: "\\bhello\\b",
+    flags: ["g", "i"],
+    explanation: "Matches the exact word 'hello' using word boundaries (\\b) to avoid partial matches in words like 'othello'.",
+    exampleInput: "Hello world, say hello and othello.",
+    expectedResult: "Matches 'Hello' and 'hello' (excludes 'othello')."
+  },
+  {
+    id: "non-empty-string",
+    name: "Non-Empty String",
+    category: "Basic Patterns",
+    regex: "^\\S+$",
+    flags: ["m"],
+    explanation: "Ensures the input contains at least one non-whitespace character and contains no spaces.",
+    exampleInput: "developer_101\n\nwith space",
+    expectedResult: "Matches 'developer_101' (rejects empty or spaced lines)."
+  },
+  {
+    id: "consecutive-whitespace",
+    name: "Multiple Whitespace",
+    category: "Basic Patterns",
+    regex: "\\s{2,}",
+    flags: ["g"],
+    explanation: "Detects two or more consecutive whitespace characters (spaces, tabs, newlines) for text normalization.",
+    exampleInput: "Regex   Lab    Developer  Toolkit",
+    expectedResult: "Matches space runs '   ', '    ', and '  '."
+  },
+  {
+    id: "trim-whitespace",
+    name: "Trim Whitespace",
+    category: "Basic Patterns",
+    regex: "^\\s+|\\s+$",
+    flags: ["g", "m"],
+    explanation: "Matches leading or trailing whitespace at line boundaries to simulate string trimming.",
+    exampleInput: "   Leading and trailing spaces.   ",
+    expectedResult: "Matches leading '   ' and trailing '   '."
+  },
+
+  // 2. Numbers
+  {
+    id: "integer-numbers",
+    name: "Integer Numbers",
+    category: "Numbers",
+    regex: "^-?\\d+$",
+    flags: ["m"],
+    explanation: "Matches positive or negative whole numbers with an optional leading minus sign.",
+    exampleInput: "-42\n350\nabc12\n0",
+    expectedResult: "Matches '-42', '350', and '0' (rejects 'abc12')."
+  },
+  {
+    id: "decimal-numbers",
+    name: "Decimal / Floating Point",
+    category: "Numbers",
+    regex: "^-?\\d+\\.\\d+$",
+    flags: ["m"],
+    explanation: "Matches floating-point decimal numbers with mandatory digits both before and after the period.",
+    exampleInput: "3.14159\n-0.05\n42\n.5",
+    expectedResult: "Matches '3.14159' and '-0.05' (rejects integers or lone decimals)."
+  },
+  {
+    id: "currency-usd",
+    name: "Currency Amount (USD)",
+    category: "Numbers",
+    regex: "\\$\\d{1,3}(?:,\\d{3})*(?:\\.\\d{2})?",
+    flags: ["g"],
+    explanation: "Matches standard dollar amounts with optional comma thousands separators and 2-digit cents.",
+    exampleInput: "Prices are $19.99, $1,450.00, and $5.",
+    expectedResult: "Matches '$19.99', '$1,450.00', and '$5'."
+  },
+  {
+    id: "percentage-value",
+    name: "Percentage Value",
+    category: "Numbers",
+    regex: "\\b\\d+(?:\\.\\d+)?%",
+    flags: ["g"],
+    explanation: "Matches integer or decimal percentage numbers terminated by a literal percent sign '%'.",
+    exampleInput: "Battery at 98%, discount is 15.5%, error 0%.",
+    expectedResult: "Matches '98%', '15.5%', and '0%'."
+  },
+
+  // 3. Text
+  {
+    id: "alpha-only",
+    name: "Alphabetical Only",
+    category: "Text",
+    regex: "^[a-zA-Z]+$",
+    flags: ["m"],
+    explanation: "Verifies that the text consists solely of Latin lowercase and uppercase letters.",
+    exampleInput: "Antigravity\nRegex101\nHello World",
+    expectedResult: "Matches 'Antigravity' (rejects numbers and spaces)."
+  },
+  {
+    id: "alphanumeric-only",
+    name: "Alphanumeric String",
+    category: "Text",
+    regex: "^[a-zA-Z0-9]+$",
+    flags: ["m"],
+    explanation: "Matches strings consisting strictly of letters and digits without punctuation or spaces.",
+    exampleInput: "User4092\nSecret#123\nAlpha9",
+    expectedResult: "Matches 'User4092' and 'Alpha9' (rejects '#')."
+  },
+  {
+    id: "url-slug",
+    name: "URL Slug",
+    category: "Text",
+    regex: "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+    flags: ["m"],
+    explanation: "Validates lowercase URL-friendly slugs separated by single hyphens.",
+    exampleInput: "regex-lab-developer-toolkit\ninvalid--slug\nvalid-slug-2",
+    expectedResult: "Matches 'regex-lab-developer-toolkit' and 'valid-slug-2'."
+  },
+  {
+    id: "capitalized-words",
+    name: "Capitalized Words",
+    category: "Text",
+    regex: "\\b[A-Z][a-z]+\\b",
+    flags: ["g"],
+    explanation: "Matches words starting with a capital letter followed exclusively by lowercase letters.",
+    exampleInput: "Learn Regular Expressions with Google Antigravity.",
+    expectedResult: "Matches 'Learn', 'Regular', 'Expressions', 'Google', 'Antigravity'."
+  },
+
+  // 4. Email and Web
+  {
+    id: "email-address",
+    name: "Email Address",
+    category: "Email and Web",
+    regex: "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
+    flags: ["g"],
+    explanation: "Captures standard email addresses adhering to common RFC naming conventions.",
+    exampleInput: "Contact support@regexlab.dev or dev.team@company.org.",
+    expectedResult: "Matches 'support@regexlab.dev' and 'dev.team@company.org'."
+  },
+  {
+    id: "web-url",
+    name: "HTTP / HTTPS URL",
+    category: "Email and Web",
+    regex: "https?:\\/\\/(?:www\\.)?[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}(?::\\d+)?(?:\\/[^\\s]*)?",
+    flags: ["g", "i"],
+    explanation: "Matches full web URLs with protocol, optional subdomain, port, and query/path segments.",
+    exampleInput: "Visit https://github.com/Tharun7-blip/regex-lab or http://localhost:8080/app",
+    expectedResult: "Matches 'https://github.com/Tharun7-blip/regex-lab' and 'http://localhost:8080/app'."
+  },
+  {
+    id: "ipv4-address",
+    name: "IPv4 Address",
+    category: "Email and Web",
+    regex: "\\b(?:(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]?\\d)\\b",
+    flags: ["g"],
+    explanation: "Validates 4-octet IPv4 addresses with numerical range bounds (0–255 per octet).",
+    exampleInput: "Allowed IPs: 192.168.1.1, 10.0.0.255, 127.0.0.1 (bad: 999.1.1.1)",
+    expectedResult: "Matches '192.168.1.1', '10.0.0.255', and '127.0.0.1'."
+  },
+  {
+    id: "domain-name",
+    name: "Domain Name",
+    category: "Email and Web",
+    regex: "\\b(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}\\b",
+    flags: ["g", "i"],
+    explanation: "Matches hostnames and domain names adhering to DNS label structure and valid TLDs.",
+    exampleInput: "Services on api.service.io, cloud.google.com, invalid_domain",
+    expectedResult: "Matches 'api.service.io' and 'cloud.google.com'."
+  },
+
+  // 5. Password
+  {
+    id: "strong-password",
+    name: "Strong Password",
+    category: "Password",
+    regex: "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
+    flags: ["m"],
+    explanation: "Requires at least 8 characters with at least 1 lowercase letter, 1 uppercase letter, 1 digit, and 1 special symbol.",
+    exampleInput: "P@ssw0rd2026\nweakpass\nNoSpecial123",
+    expectedResult: "Matches 'P@ssw0rd2026' (rejects password without special char)."
+  },
+  {
+    id: "medium-password",
+    name: "Medium Password",
+    category: "Password",
+    regex: "^(?=.*[a-zA-Z])(?=.*\\d)[a-zA-Z\\d]{6,}$",
+    flags: ["m"],
+    explanation: "Requires a minimum of 6 alphanumeric characters containing at least one letter and one number.",
+    exampleInput: "Safe101\nonlyletters\n12345",
+    expectedResult: "Matches 'Safe101' (rejects purely alphabetic or numeric passwords)."
+  },
+  {
+    id: "numeric-pin",
+    name: "Numeric PIN Code",
+    category: "Password",
+    regex: "^\\d{4}(?:\\d{2})?$",
+    flags: ["m"],
+    explanation: "Validates standard 4-digit or 6-digit numeric security PIN codes.",
+    exampleInput: "1234\n987654\n12345\nabcd",
+    expectedResult: "Matches '1234' and '987654' (rejects 5 digits or letters)."
+  },
+
+  // 6. Date and Time
+  {
+    id: "iso-date",
+    name: "ISO Date (YYYY-MM-DD)",
+    category: "Date and Time",
+    regex: "\\b(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])\\b",
+    flags: ["g"],
+    explanation: "Matches ISO 8601 calendar dates with captured groups for 4-digit year, 2-digit month, and 2-digit day.",
+    exampleInput: "Release: 2026-11-13, Deadline: 2026-12-31, Bad: 2026-13-40",
+    expectedResult: "Matches '2026-11-13' and '2026-12-31'."
+  },
+  {
+    id: "time-24h",
+    name: "24-Hour Time (HH:MM:SS)",
+    category: "Date and Time",
+    regex: "\\b(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d)?\\b",
+    flags: ["g"],
+    explanation: "Matches 24-hour military clock times with hours (00–23), minutes (00–59), and optional seconds (00–59).",
+    exampleInput: "Starts at 09:30, server log at 23:59:58, invalid: 25:00",
+    expectedResult: "Matches '09:30' and '23:59:58'."
+  },
+  {
+    id: "time-12h",
+    name: "12-Hour Time (AM/PM)",
+    category: "Date and Time",
+    regex: "\\b(?:0?[1-9]|1[0-2]):[0-5]\\d\\s?(?:AM|PM|am|pm)\\b",
+    flags: ["g"],
+    explanation: "Matches 12-hour clock time format with optional leading zero and case-insensitive AM or PM designator.",
+    exampleInput: "Meeting at 10:15 AM, dinner at 7:45pm, bad: 14:00 PM",
+    expectedResult: "Matches '10:15 AM' and '7:45pm'."
+  },
+
+  // 7. Programming
+  {
+    id: "hex-color",
+    name: "Hex Color Code",
+    category: "Programming",
+    regex: "#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})\\b",
+    flags: ["g"],
+    explanation: "Matches CSS hexadecimal color literals in 3-digit shorthand, 6-digit RGB, or 8-digit RGBA format.",
+    exampleInput: "Theme colors: #8b5cf6, #3b82f6, #fff, #070913cc (skip #12345)",
+    expectedResult: "Matches '#8b5cf6', '#3b82f6', '#fff', and '#070913cc'."
+  },
+  {
+    id: "semver",
+    name: "Semantic Version (SemVer)",
+    category: "Programming",
+    regex: "\\bv?(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?\\b",
+    flags: ["g"],
+    explanation: "Validates complete SemVer 2.0 specifications with major.minor.patch numbers and optional pre-release/build metadata.",
+    exampleInput: "Packages: v1.0.0, 2.4.15-beta.1, 0.9.3 (invalid: 1.2)",
+    expectedResult: "Matches 'v1.0.0', '2.4.15-beta.1', and '0.9.3'."
+  },
+  {
+    id: "uuid-v4",
+    name: "UUID v4",
+    category: "Programming",
+    regex: "\\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}\\b",
+    flags: ["g"],
+    explanation: "Validates 128-bit universally unique identifiers adhering to RFC 4122 version 4 standards.",
+    exampleInput: "ID: 550e8400-e29b-41d4-a716-446655440000 (bad: 550e8400-e29b-11d4-a716-446655440000)",
+    expectedResult: "Matches '550e8400-e29b-41d4-a716-446655440000'."
+  },
+  {
+    id: "html-tags",
+    name: "HTML / XML Tags",
+    category: "Programming",
+    regex: "<\\/?[a-zA-Z][a-zA-Z0-9]*(?:\\s+[^>]*?)?\\/?>",
+    flags: ["g"],
+    explanation: "Matches opening, closing, and self-closing HTML/XML elements including tag attributes.",
+    exampleInput: "<div class=\"hero\"><span id=\"tag\">Regex</span><img src=\"pic.png\" /></div>",
+    expectedResult: "Matches '<div class=\"hero\">', '<span id=\"tag\">', '</span>', '<img src=\"pic.png\" />', '</div>'."
+  }
+];
+
+/**
  * Escapes HTML special characters to safely render arbitrary text inside innerHTML.
  * @param {string} value
  * @returns {string}
  */
 function escapeHtml(value) {
-  return value
+  if (value === null || value === undefined) {
+    return "";
+  }
+  return String(value)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
@@ -143,7 +432,7 @@ function buildHighlightedHtml(text, matches) {
 }
 
 /**
- * Renders the Match Breakdown & Capture Groups list.
+ * Renders the Match Breakdown & Capture Groups list in the Live Regex Tester.
  * @param {HTMLElement} container
  * @param {Array<object>} matches
  * @param {boolean} truncated
@@ -197,6 +486,7 @@ function renderMatchDetails(container, matches, truncated) {
 
 if (typeof document !== "undefined") {
   document.addEventListener("DOMContentLoaded", () => {
+    // Top-level app status elements
     const statusBadge = document.getElementById("app-status");
     const statusLabel = statusBadge?.querySelector(".status-label");
     const verifyValue = document.getElementById("js-verify-value");
@@ -219,6 +509,17 @@ if (typeof document !== "undefined") {
     const loadSampleBtn = document.getElementById("btn-load-sample");
     const clearTesterBtn = document.getElementById("btn-clear-tester");
 
+    // Pattern Library elements
+    const librarySearchInput = document.getElementById("library-search");
+    const btnClearSearch = document.getElementById("btn-clear-search");
+    const categoryChips = document.querySelectorAll(".category-chip");
+    const patternCardsGrid = document.getElementById("pattern-cards-grid");
+    const libraryCountPill = document.getElementById("library-count-pill");
+    const toastContainer = document.getElementById("toast-container");
+
+    let activeCategory = "All";
+    let searchQuery = "";
+
     // 1. Update status indicators to confirm Vanilla JS loaded cleanly
     if (statusBadge && statusLabel) {
       statusBadge.classList.add("is-ready");
@@ -226,7 +527,7 @@ if (typeof document !== "undefined") {
     }
 
     if (verifyValue) {
-      verifyValue.textContent = "JS Verified (Day 2)";
+      verifyValue.textContent = "JS Verified (Day 3)";
     }
 
     // 2. Navigation link active state
@@ -242,8 +543,17 @@ if (typeof document !== "undefined") {
       const activateCard = () => {
         const targetHref = card.dataset.href;
         if (targetHref) {
-          document.querySelector(targetHref)?.scrollIntoView({ behavior: "smooth" });
-          return;
+          const targetElement = document.querySelector(targetHref);
+          if (targetElement) {
+            targetElement.scrollIntoView({ behavior: "smooth" });
+            navLinks.forEach((nav) => {
+              if (nav.getAttribute("href") === targetHref) {
+                navLinks.forEach((item) => item.classList.remove("active"));
+                nav.classList.add("active");
+              }
+            });
+            return;
+          }
         }
 
         const toolName = card.dataset.tool || "Module";
@@ -384,12 +694,286 @@ if (typeof document !== "undefined") {
       patternInput.focus();
     });
 
-    // Initial render
-    evaluateRegex();
+    // 5. Toast notification helper
+    function showToast(message, icon = "✓") {
+      if (!toastContainer) {
+        return;
+      }
 
-    // 5. Console verification message
+      const toast = document.createElement("div");
+      toast.className = "toast";
+      toast.setAttribute("role", "status");
+      toast.innerHTML = `
+        <span class="toast-icon" aria-hidden="true">${escapeHtml(icon)}</span>
+        <span class="toast-message">${escapeHtml(message)}</span>
+      `;
+
+      toastContainer.appendChild(toast);
+
+      window.setTimeout(() => {
+        toast.classList.add("is-hiding");
+        toast.addEventListener("animationend", () => toast.remove());
+        window.setTimeout(() => toast.remove(), 250);
+      }, 2600);
+    }
+
+    // 6. Safe clipboard copy helper with fallback
+    async function copyToClipboard(text, successCallback) {
+      if (navigator.clipboard && window.isSecureContext) {
+        try {
+          await navigator.clipboard.writeText(text);
+          if (successCallback) successCallback();
+          return true;
+        } catch {
+          // Fallback to execCommand below
+        }
+      }
+
+      try {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.left = "-9999px";
+        textarea.style.top = "0";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        const successful = document.execCommand("copy");
+        document.body.removeChild(textarea);
+        if (successful && successCallback) {
+          successCallback();
+          return true;
+        }
+      } catch {
+        // Copy failed
+      }
+      return false;
+    }
+
+    // 7. Day 3: Regex Pattern Library rendering, search & filtering
+    function getFilteredPatterns() {
+      const q = searchQuery.trim().toLowerCase();
+
+      return PATTERN_LIBRARY.filter((item) => {
+        const matchesCategory =
+          activeCategory === "All" || item.category === activeCategory;
+
+        const matchesQuery =
+          !q ||
+          item.name.toLowerCase().includes(q) ||
+          item.explanation.toLowerCase().includes(q) ||
+          item.regex.toLowerCase().includes(q) ||
+          item.category.toLowerCase().includes(q) ||
+          item.exampleInput.toLowerCase().includes(q) ||
+          item.expectedResult.toLowerCase().includes(q);
+
+        return matchesCategory && matchesQuery;
+      });
+    }
+
+    function renderPatternCards() {
+      if (!patternCardsGrid) {
+        return;
+      }
+
+      const filtered = getFilteredPatterns();
+
+      // Update count pill
+      if (libraryCountPill) {
+        if (filtered.length === PATTERN_LIBRARY.length) {
+          libraryCountPill.textContent = `Showing all ${filtered.length} patterns`;
+        } else if (filtered.length === 0) {
+          libraryCountPill.textContent = "0 patterns found";
+        } else {
+          libraryCountPill.textContent = `Showing ${filtered.length} of ${PATTERN_LIBRARY.length} patterns`;
+        }
+      }
+
+      // Show empty state if no patterns match
+      if (filtered.length === 0) {
+        patternCardsGrid.innerHTML = `
+          <div class="pattern-empty-state">
+            <span class="empty-icon" aria-hidden="true">🔍</span>
+            <h3 class="empty-title">No patterns found</h3>
+            <p class="empty-desc">
+              No regular expressions match your current search "${escapeHtml(searchQuery)}" or selected category "${escapeHtml(activeCategory)}".
+            </p>
+            <button type="button" class="btn btn-accent" id="btn-reset-filters">Reset Filters</button>
+          </div>
+        `;
+
+        document.getElementById("btn-reset-filters")?.addEventListener("click", () => {
+          activeCategory = "All";
+          searchQuery = "";
+          if (librarySearchInput) librarySearchInput.value = "";
+          if (btnClearSearch) btnClearSearch.hidden = true;
+          categoryChips.forEach((chip) => {
+            chip.classList.toggle("is-active", chip.dataset.category === "All");
+          });
+          renderPatternCards();
+          librarySearchInput?.focus();
+        });
+        return;
+      }
+
+      // Render cards
+      patternCardsGrid.innerHTML = filtered
+        .map((item) => {
+          const flagsDisplay = item.flags.length > 0 ? item.flags.join("") : "none";
+
+          return `
+            <article class="pattern-card glass-card" data-id="${escapeHtml(item.id)}">
+              <div class="pattern-card-header">
+                <h3 class="pattern-card-title">${escapeHtml(item.name)}</h3>
+                <div class="pattern-card-badges">
+                  <span class="category-badge">${escapeHtml(item.category)}</span>
+                  <span class="pattern-flags-tag">/${escapeHtml(flagsDisplay)}</span>
+                </div>
+              </div>
+
+              <p class="pattern-explanation">${escapeHtml(item.explanation)}</p>
+
+              <div class="pattern-regex-box" title="${escapeHtml(item.regex)}">
+                <code>${escapeHtml(item.regex)}</code>
+              </div>
+
+              <div class="pattern-example-box">
+                <span class="meta-box-label">Example Input</span>
+                <span class="meta-box-val">${escapeHtml(item.exampleInput)}</span>
+              </div>
+
+              <div class="pattern-expected-box">
+                <span class="meta-box-label">Expected Result</span>
+                <span class="meta-box-val highlight">${escapeHtml(item.expectedResult)}</span>
+              </div>
+
+              <div class="pattern-card-actions">
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-copy-pattern"
+                  data-id="${escapeHtml(item.id)}"
+                  title="Copy regex to clipboard"
+                >
+                  📋 Copy Pattern
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-accent btn-test-pattern"
+                  data-id="${escapeHtml(item.id)}"
+                  title="Load into Live Regex Tester"
+                >
+                  ⚡ Test Pattern
+                </button>
+              </div>
+            </article>
+          `;
+        })
+        .join("");
+    }
+
+    // Connect Day 3 Pattern Card Actions (Copy & Test)
+    patternCardsGrid?.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) {
+        return;
+      }
+
+      const copyBtn = target.closest(".btn-copy-pattern");
+      if (copyBtn) {
+        const patternId = copyBtn.getAttribute("data-id");
+        const patternItem = PATTERN_LIBRARY.find((p) => p.id === patternId);
+        if (!patternItem) return;
+
+        copyToClipboard(patternItem.regex, () => {
+          const originalText = copyBtn.innerHTML;
+          copyBtn.classList.add("is-copied");
+          copyBtn.textContent = "✓ Copied!";
+
+          window.setTimeout(() => {
+            copyBtn.classList.remove("is-copied");
+            copyBtn.innerHTML = originalText;
+          }, 1800);
+
+          showToast(`Copied "${patternItem.name}" pattern to clipboard!`, "📋");
+        });
+        return;
+      }
+
+      const testBtn = target.closest(".btn-test-pattern");
+      if (testBtn) {
+        const patternId = testBtn.getAttribute("data-id");
+        const patternItem = PATTERN_LIBRARY.find((p) => p.id === patternId);
+        if (!patternItem || !patternInput || !testStringInput) return;
+
+        // 1. Populate Live Regex Tester inputs
+        patternInput.value = patternItem.regex;
+        testStringInput.value = patternItem.exampleInput;
+
+        // 2. Set active flags
+        flagCheckboxes.forEach((cb) => {
+          cb.checked = patternItem.flags.includes(cb.value);
+        });
+
+        // 3. Immediately evaluate regex
+        evaluateRegex();
+
+        // 4. Smoothly navigate to Live Regex Tester
+        const testerElement = document.getElementById("tester");
+        if (testerElement) {
+          testerElement.scrollIntoView({ behavior: "smooth" });
+        }
+
+        // 5. Update active navigation link
+        navLinks.forEach((nav) => {
+          if (nav.getAttribute("href") === "#tester") {
+            navLinks.forEach((item) => item.classList.remove("active"));
+            nav.classList.add("active");
+          }
+        });
+
+        // 6. Give visual feedback
+        showToast(`Loaded "${patternItem.name}" into Live Regex Tester!`, "⚡");
+        patternInput.focus();
+      }
+    });
+
+    // Category filter buttons
+    categoryChips.forEach((chip) => {
+      chip.addEventListener("click", () => {
+        categoryChips.forEach((c) => c.classList.remove("is-active"));
+        chip.classList.add("is-active");
+        activeCategory = chip.dataset.category || "All";
+        renderPatternCards();
+      });
+    });
+
+    // Search input live filtering
+    librarySearchInput?.addEventListener("input", (e) => {
+      searchQuery = e.target.value;
+      if (btnClearSearch) {
+        btnClearSearch.hidden = searchQuery.length === 0;
+      }
+      renderPatternCards();
+    });
+
+    // Clear search button
+    btnClearSearch?.addEventListener("click", () => {
+      searchQuery = "";
+      if (librarySearchInput) {
+        librarySearchInput.value = "";
+        librarySearchInput.focus();
+      }
+      btnClearSearch.hidden = true;
+      renderPatternCards();
+    });
+
+    // Initial render of Live Regex Tester and Pattern Library
+    evaluateRegex();
+    renderPatternCards();
+
+    // Console verification message
     console.info(
-      "%cRegex Lab – Developer Toolkit%c initialized successfully (Day 2 · Live Regex Tester).",
+      "%cRegex Lab – Developer Toolkit%c initialized successfully (Day 3 · Regex Pattern Library).",
       "color: #a855f7; font-weight: bold;",
       "color: #93c5fd;"
     );
@@ -400,6 +984,7 @@ if (typeof module !== "undefined" && module.exports) {
   module.exports = {
     escapeHtml,
     collectMatches,
-    buildHighlightedHtml
+    buildHighlightedHtml,
+    PATTERN_LIBRARY
   };
 }

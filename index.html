@@ -44,6 +44,7 @@
       <nav class="nav-links" aria-label="Primary Navigation">
         <a href="#dashboard" class="nav-link active">Dashboard</a>
         <a href="#tester" class="nav-link">Regex Tester</a>
+        <a href="#library" class="nav-link">Pattern Library</a>
         <a href="#tools" class="nav-link">Planned Tools</a>
         <a href="#roadmap" class="nav-link">Roadmap</a>
       </nav>
@@ -61,8 +62,8 @@
     <section id="dashboard" class="container dashboard-hero">
       <div class="hero-card glass-card">
         <div class="hero-badge">
-          <span class="mono-tag">Day 2 / 7</span>
-          <span>Live Regex Tester</span>
+          <span class="mono-tag">Day 3 / 7</span>
+          <span>Regex Pattern Library</span>
         </div>
 
         <h1 class="hero-title">Regex Lab</h1>
@@ -84,7 +85,7 @@
           </div>
           <div class="meta-pill">
             <span class="meta-label">Current Phase</span>
-            <span class="meta-value">Day 2 · Live Tester Active</span>
+            <span class="meta-value">Day 3 · Pattern Library Active</span>
           </div>
         </div>
       </div>
@@ -200,6 +201,55 @@
       </div>
     </section>
 
+    <!-- Day 3: Regex Pattern Library Module -->
+    <section id="library" class="container library-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Regex Pattern Library</h2>
+          <p class="section-subtitle">
+            Explore, search, copy, and test verified regular expressions across 7 essential developer categories.
+          </p>
+        </div>
+        <span class="section-pill" id="library-count-pill">Showing 25 patterns</span>
+      </div>
+
+      <div class="glass-card library-shell">
+        <!-- Search & Filter Controls -->
+        <div class="library-controls">
+          <div class="library-search-wrap">
+            <label for="library-search" class="sr-only">Search pattern library</label>
+            <div class="search-input-box">
+              <span class="search-icon" aria-hidden="true">🔍</span>
+              <input
+                type="search"
+                id="library-search"
+                class="library-search"
+                placeholder="Search by pattern name, description, or regex..."
+                autocomplete="off"
+              />
+              <button type="button" id="btn-clear-search" class="btn-clear-search" aria-label="Clear search" hidden>×</button>
+            </div>
+          </div>
+
+          <div class="category-filters" id="category-filters" role="group" aria-label="Pattern Categories">
+            <button type="button" class="category-chip is-active" data-category="All">All</button>
+            <button type="button" class="category-chip" data-category="Basic Patterns">Basic Patterns</button>
+            <button type="button" class="category-chip" data-category="Numbers">Numbers</button>
+            <button type="button" class="category-chip" data-category="Text">Text</button>
+            <button type="button" class="category-chip" data-category="Email and Web">Email and Web</button>
+            <button type="button" class="category-chip" data-category="Password">Password</button>
+            <button type="button" class="category-chip" data-category="Date and Time">Date and Time</button>
+            <button type="button" class="category-chip" data-category="Programming">Programming</button>
+          </div>
+        </div>
+
+        <!-- Pattern Cards Grid -->
+        <div id="pattern-cards-grid" class="pattern-cards-grid" aria-live="polite">
+          <!-- Dynamically populated via JS -->
+        </div>
+      </div>
+    </section>
+
     <!-- Toolkit Modules Overview -->
     <section id="tools" class="container tools-section">
       <div class="section-header">
@@ -209,7 +259,7 @@
             Developer utilities scheduled across the 7-day build.
           </p>
         </div>
-        <span class="section-pill" id="module-feedback">1 active · 5 planned</span>
+        <span class="section-pill" id="module-feedback">2 active · 4 planned</span>
       </div>
 
       <div class="tools-grid">
@@ -227,17 +277,17 @@
           </div>
         </article>
 
-        <article class="tool-card glass-card" tabindex="0" data-tool="Pattern Library">
+        <article class="tool-card glass-card is-active-module" tabindex="0" data-tool="Pattern Library" data-href="#library">
           <div class="tool-card-top">
             <span class="tool-icon" aria-hidden="true">{}</span>
-            <span class="tool-badge">Planned · Day 3</span>
+            <span class="tool-badge badge-active">Active · Day 3</span>
           </div>
           <h3 class="tool-title">Pattern Library</h3>
           <p class="tool-description">
-            Curated collection of verified expressions for emails, URLs, dates, UUIDs, and IP addresses.
+            Curated collection of verified expressions across 7 categories with live search, copy, and tester loading.
           </p>
           <div class="tool-footer">
-            <span class="tool-status">Placeholder module</span>
+            <span class="tool-status">Ready above ↑</span>
           </div>
         </article>
 
@@ -309,12 +359,15 @@
         <ul class="checklist">
           <li class="checklist-item done">Day 1: Project structure &amp; glassmorphism shell</li>
           <li class="checklist-item done">Day 2: Live Regex Tester, highlights &amp; capture groups</li>
-          <li class="checklist-item pending">Day 3: Pattern Library &amp; Cheatsheet</li>
+          <li class="checklist-item done">Day 3: Regex Pattern Library, search, copy &amp; tester integration</li>
           <li class="checklist-item pending">Days 4–7: Replace, Explainer, Export &amp; Storage</li>
         </ul>
       </div>
     </section>
   </main>
+
+  <!-- Floating Toast Notification -->
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
   <!-- Footer -->
   <footer class="footer">
@@ -323,7 +376,7 @@
         <strong>Regex Lab</strong> · Modern Developer Toolkit
       </p>
       <p class="footer-meta">
-        Day 2 Build · HTML5, CSS3 &amp; Vanilla JavaScript
+        Day 3 Build · HTML5, CSS3 &amp; Vanilla JavaScript
       </p>
     </div>
   </footer>

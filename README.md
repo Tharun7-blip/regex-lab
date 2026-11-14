@@ -2,7 +2,7 @@
 
 A modern, client-side developer toolkit for crafting, testing, and understanding regular expressions directly in the browser.
 
-> **Project Status:** Day 2 of 7 — Live Regex Tester Implemented
+> **Project Status:** Day 3 of 7 — Regex Pattern Library Implemented
 
 ---
 
@@ -11,6 +11,7 @@ A modern, client-side developer toolkit for crafting, testing, and understanding
 **Regex Lab** is designed as a clean, fast, zero-dependency web application for developers working with regular expressions.
 - **Day 1:** Established the project structure, dark glassmorphism UI foundation, and Vanilla JS load verification.
 - **Day 2:** Built the **Live Regex Tester** with real-time pattern evaluation, flag toggles (`g`, `i`, `m`, `s`, `u`), safe HTML-escaped match highlighting, match breakdown with numbered and named capture groups, error handling, and sample/clear controls.
+- **Day 3:** Built the **Regex Pattern Library** featuring 26 curated, verified regular expressions across 7 essential categories, real-time search, category filtering, one-click clipboard copying with toast notifications, and seamless loading into the Live Regex Tester.
 
 ---
 
@@ -25,18 +26,35 @@ A modern, client-side developer toolkit for crafting, testing, and understanding
 
 ---
 
+## Day 3 Features (Regex Pattern Library)
+
+- **7 Dedicated Categories:**
+  1. **Basic Patterns** — Exact word match, non-empty string, multiple whitespace, trim whitespace.
+  2. **Numbers** — Whole integers (positive/negative), decimal floating-point numbers, USD currency, percentage values.
+  3. **Text** — Alphabetical only, alphanumeric, URL slug validation, capitalized title words.
+  4. **Email and Web** — Standard RFC email addresses, HTTP/HTTPS web URLs, IPv4 address validation, domain names.
+  5. **Password** — Strong password (lowercase, uppercase, digit, symbol, min 8 chars), medium password, numeric PIN codes.
+  6. **Date and Time** — ISO 8601 calendar dates (YYYY-MM-DD), 24-hour military time, 12-hour time with AM/PM.
+  7. **Programming** — CSS hex color literals (3/6/8-digit), Semantic Versioning (SemVer 2.0), UUID v4 identifiers, HTML/XML tag elements.
+- **Rich Pattern Cards:** Each card displays the pattern name, category badge, active flags, plain-English explanation, syntax-highlighted regex code box, realistic example input, and expected matching output.
+- **Live Search & Category Filtering:** Instant multi-field search (searches name, regex, explanation, input, output, and category) plus quick category filter chips and a responsive empty-state screen with a one-click **Reset Filters** button.
+- **Deep Integration with Live Regex Tester:** Clicking **⚡ Test Pattern** automatically populates the regex input, sets the appropriate flags, inserts the sample text into the test string area, triggers immediate evaluation and match highlighting, and smoothly scrolls to the Live Regex Tester.
+- **One-Click Copy & Toast Notifications:** Clicking **📋 Copy Pattern** copies the regular expression directly to the system clipboard, toggles the button state to `✓ Copied!`, and presents a sleek, glassmorphic toast notification.
+
+---
+
 ## Technology Stack
 
-- **HTML5** — Semantic page structure
-- **CSS3** — Dark theme, purple/blue accents, glassmorphism cards, CSS Grid & Flexbox
-- **Vanilla JavaScript** — Real-time `RegExp` evaluation, DOM rendering, and UI verification (no frameworks, no backend, no database)
+- **HTML5** — Semantic page structure, accessible ARIA attributes
+- **CSS3** — Dark theme, purple/blue accents, glassmorphism cards, responsive CSS Grid and Flexbox layout
+- **Vanilla JavaScript** — Real-time `RegExp` engine, dynamic card filtering, clipboard management, toast system (zero external libraries, no frameworks, no database)
 
 ---
 
 ## Planned Features (7-Day Roadmap)
 
 - **Live Regex Tester** *(Active · Day 2)* — Real-time pattern matching, flag controls (`g`, `i`, `m`, `s`, `u`), and match highlighting
-- **Pattern Library** — Curated snippets for emails, URLs, dates, UUIDs, and IP addresses
+- **Pattern Library** *(Active · Day 3)* — 26 curated developer snippets across 7 categories with live search, copy, and tester loading
 - **Match & Replace Sandbox** — Interactive substitution preview with capture group backreferences
 - **Regex Explainer** — Token-by-token plain-English breakdown of patterns
 - **Code Generator** — Ready-to-use export snippets for JavaScript, Python, and Go
@@ -80,8 +98,16 @@ Because Regex Lab uses pure HTML5, CSS3, and Vanilla JavaScript, no build tools 
   ```
   Then visit `http://localhost:8080` in your browser.
 
-### Using the Live Regex Tester
-1. Enter a regular expression in the `/` pattern input (for example, `\d+` or `(?<year>\d{4})-(\d{2})`).
-2. Toggle flags (`g`, `i`, `m`, `s`, `u`) as needed.
-3. Type or paste text in the **Test String** box to view live highlights and match breakdowns.
-4. Use the sample selector + **Load Sample** to try preset examples, or click **Clear** to reset.
+---
+
+### Exploring the Toolkit
+
+1. **Live Regex Tester:**
+   - Type or paste any regular expression into the pattern field between the `/` delimiters.
+   - Toggle desired flags (`g`, `i`, `m`, `s`, `u`).
+   - Paste test text in **Test String** to see live highlighted matches and a breakdown of numbered and named capture groups.
+2. **Regex Pattern Library:**
+   - Browse through the 7 category chips (`Basic Patterns`, `Numbers`, `Text`, `Email and Web`, `Password`, `Date and Time`, `Programming`) or select `All`.
+   - Use the live search bar to find patterns by keyword (e.g., `email`, `uuid`, `hex`, `slug`, `date`).
+   - Click **📋 Copy Pattern** to quickly copy any pattern to your clipboard.
+   - Click **⚡ Test Pattern** to load the pattern, flags, and sample text directly into the Live Regex Tester for instant experimentation.
