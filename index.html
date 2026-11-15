@@ -45,6 +45,7 @@
         <a href="#dashboard" class="nav-link active">Dashboard</a>
         <a href="#tester" class="nav-link">Regex Tester</a>
         <a href="#library" class="nav-link">Pattern Library</a>
+        <a href="#generator" class="nav-link">Code Generator</a>
         <a href="#tools" class="nav-link">Planned Tools</a>
         <a href="#roadmap" class="nav-link">Roadmap</a>
       </nav>
@@ -62,8 +63,8 @@
     <section id="dashboard" class="container dashboard-hero">
       <div class="hero-card glass-card">
         <div class="hero-badge">
-          <span class="mono-tag">Day 3 / 7</span>
-          <span>Regex Pattern Library</span>
+          <span class="mono-tag">Day 4 / 7</span>
+          <span>Regex Code Generator</span>
         </div>
 
         <h1 class="hero-title">Regex Lab</h1>
@@ -85,7 +86,7 @@
           </div>
           <div class="meta-pill">
             <span class="meta-label">Current Phase</span>
-            <span class="meta-value">Day 3 · Pattern Library Active</span>
+            <span class="meta-value">Day 4 · Code Generator Active</span>
           </div>
         </div>
       </div>
@@ -210,7 +211,7 @@
             Explore, search, copy, and test verified regular expressions across 7 essential developer categories.
           </p>
         </div>
-        <span class="section-pill" id="library-count-pill">Showing 25 patterns</span>
+        <span class="section-pill" id="library-count-pill">Showing 26 patterns</span>
       </div>
 
       <div class="glass-card library-shell">
@@ -250,6 +251,119 @@
       </div>
     </section>
 
+    <!-- Day 4: Regex Code Generator Module -->
+    <section id="generator" class="container generator-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Regex Code Generator</h2>
+          <p class="section-subtitle">
+            Convert regular expressions into ready-to-use validation and matching code in JavaScript, Python, PHP, and Java.
+          </p>
+        </div>
+        <div class="tester-actions">
+          <button type="button" class="btn btn-accent" id="btn-copy-code">Copy Code</button>
+          <button type="button" class="btn btn-ghost" id="btn-clear-generator">Clear</button>
+        </div>
+      </div>
+
+      <div class="glass-card generator-shell">
+        <!-- Controls row: Pattern, Flags, Target Language & Generate Button -->
+        <div class="generator-controls-grid">
+          <div class="generator-field generator-field-pattern">
+            <label for="generator-pattern" class="field-label">Regex Pattern</label>
+            <div class="pattern-input-wrap">
+              <span class="pattern-delimiter" aria-hidden="true">/</span>
+              <input
+                type="text"
+                id="generator-pattern"
+                class="pattern-input"
+                placeholder="Enter regex pattern (e.g. \d+, [A-Z], (?<year>\d{4})-(\d{2}))"
+                autocomplete="off"
+                spellcheck="false"
+                value="([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})"
+              />
+              <span class="pattern-delimiter" aria-hidden="true">/</span>
+            </div>
+          </div>
+
+          <div class="generator-field generator-field-flags">
+            <label for="generator-flags" class="field-label">Flags</label>
+            <div class="flags-input-wrap">
+              <input
+                type="text"
+                id="generator-flags"
+                class="flags-text-input"
+                placeholder="g, i, m..."
+                autocomplete="off"
+                spellcheck="false"
+                value="g"
+              />
+            </div>
+          </div>
+
+          <div class="generator-field generator-field-lang">
+            <label for="generator-lang" class="field-label">Target Language</label>
+            <div class="select-wrap">
+              <select id="generator-lang" class="lang-select" aria-label="Target Programming Language">
+                <option value="javascript">JavaScript (ES6+)</option>
+                <option value="python">Python (re)</option>
+                <option value="php">PHP (preg_match)</option>
+                <option value="java">Java (java.util.regex)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="generator-action-wrap">
+            <button type="button" class="btn btn-accent btn-generate" id="btn-generate-code">
+              ⚡ Generate Code
+            </button>
+          </div>
+        </div>
+
+        <!-- Sample test string customization -->
+        <div class="generator-field">
+          <div class="pane-header">
+            <label for="generator-sample-text" class="field-label">Sample Test String</label>
+            <span class="pane-meta" id="generator-sample-meta">Included inside the generated code snippet</span>
+          </div>
+          <input
+            type="text"
+            id="generator-sample-text"
+            class="sample-text-input"
+            placeholder="Sample text to test against (e.g. Contact support@regexlab.dev)"
+            value="Contact support@regexlab.dev for questions"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </div>
+
+        <!-- Syntax Error Banner -->
+        <div class="error-banner" id="generator-error" role="alert" hidden></div>
+
+        <!-- Generated Code Display Area -->
+        <div class="code-display-panel">
+          <div class="code-display-header">
+            <div class="lang-tabs" role="tablist" aria-label="Programming Language Tabs">
+              <button type="button" class="lang-tab is-active" data-lang="javascript" role="tab" aria-selected="true">JavaScript</button>
+              <button type="button" class="lang-tab" data-lang="python" role="tab" aria-selected="false">Python</button>
+              <button type="button" class="lang-tab" data-lang="php" role="tab" aria-selected="false">PHP</button>
+              <button type="button" class="lang-tab" data-lang="java" role="tab" aria-selected="false">Java</button>
+            </div>
+            <div class="code-display-actions">
+              <span class="code-meta-pill" id="generator-code-meta">JavaScript · Ready</span>
+              <button type="button" class="btn btn-ghost btn-sm" id="btn-copy-code-inline" title="Copy code to clipboard">
+                📋 Copy
+              </button>
+            </div>
+          </div>
+
+          <div class="code-pre-wrap">
+            <pre class="code-pre"><code id="generator-code-output" class="code-output"></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Toolkit Modules Overview -->
     <section id="tools" class="container tools-section">
       <div class="section-header">
@@ -259,7 +373,7 @@
             Developer utilities scheduled across the 7-day build.
           </p>
         </div>
-        <span class="section-pill" id="module-feedback">2 active · 4 planned</span>
+        <span class="section-pill" id="module-feedback">3 active · 3 planned</span>
       </div>
 
       <div class="tools-grid">
@@ -284,7 +398,21 @@
           </div>
           <h3 class="tool-title">Pattern Library</h3>
           <p class="tool-description">
-            Curated collection of verified expressions across 7 categories with live search, copy, and tester loading.
+            Curated collection of 26 verified expressions across 7 categories with live search, copy, and tester loading.
+          </p>
+          <div class="tool-footer">
+            <span class="tool-status">Ready above ↑</span>
+          </div>
+        </article>
+
+        <article class="tool-card glass-card is-active-module" tabindex="0" data-tool="Code Generator" data-href="#generator">
+          <div class="tool-card-top">
+            <span class="tool-icon" aria-hidden="true">&lt;/&gt;</span>
+            <span class="tool-badge badge-active">Active · Day 4</span>
+          </div>
+          <h3 class="tool-title">Code Generator</h3>
+          <p class="tool-description">
+            Export tested regular expressions into ready-to-paste snippets for JavaScript, Python, PHP, and Java.
           </p>
           <div class="tool-footer">
             <span class="tool-status">Ready above ↑</span>
@@ -294,7 +422,7 @@
         <article class="tool-card glass-card" tabindex="0" data-tool="Match & Replace">
           <div class="tool-card-top">
             <span class="tool-icon" aria-hidden="true">⇄</span>
-            <span class="tool-badge">Planned · Day 4</span>
+            <span class="tool-badge">Planned · Day 5</span>
           </div>
           <h3 class="tool-title">Match &amp; Replace</h3>
           <p class="tool-description">
@@ -308,25 +436,11 @@
         <article class="tool-card glass-card" tabindex="0" data-tool="Regex Explainer">
           <div class="tool-card-top">
             <span class="tool-icon" aria-hidden="true">?!</span>
-            <span class="tool-badge">Planned · Day 5</span>
+            <span class="tool-badge">Planned · Day 6</span>
           </div>
           <h3 class="tool-title">Regex Explainer</h3>
           <p class="tool-description">
             Token-by-token breakdown translating complex expressions into clear, readable descriptions.
-          </p>
-          <div class="tool-footer">
-            <span class="tool-status">Placeholder module</span>
-          </div>
-        </article>
-
-        <article class="tool-card glass-card" tabindex="0" data-tool="Code Generator">
-          <div class="tool-card-top">
-            <span class="tool-icon" aria-hidden="true">&lt;/&gt;</span>
-            <span class="tool-badge">Planned · Day 6</span>
-          </div>
-          <h3 class="tool-title">Code Generator</h3>
-          <p class="tool-description">
-            Export tested regular expressions into ready-to-paste snippets for JavaScript, Python, and Go.
           </p>
           <div class="tool-footer">
             <span class="tool-status">Placeholder module</span>
@@ -360,7 +474,8 @@
           <li class="checklist-item done">Day 1: Project structure &amp; glassmorphism shell</li>
           <li class="checklist-item done">Day 2: Live Regex Tester, highlights &amp; capture groups</li>
           <li class="checklist-item done">Day 3: Regex Pattern Library, search, copy &amp; tester integration</li>
-          <li class="checklist-item pending">Days 4–7: Replace, Explainer, Export &amp; Storage</li>
+          <li class="checklist-item done">Day 4: Regex Code Generator for JavaScript, Python, PHP &amp; Java</li>
+          <li class="checklist-item pending">Days 5–7: Replace, Explainer, Export &amp; Storage</li>
         </ul>
       </div>
     </section>
@@ -376,7 +491,7 @@
         <strong>Regex Lab</strong> · Modern Developer Toolkit
       </p>
       <p class="footer-meta">
-        Day 3 Build · HTML5, CSS3 &amp; Vanilla JavaScript
+        Day 4 Build · HTML5, CSS3 &amp; Vanilla JavaScript
       </p>
     </div>
   </footer>

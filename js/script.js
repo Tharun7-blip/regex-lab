@@ -2,7 +2,7 @@
 
 /**
  * Regex Lab – Developer Toolkit
- * Day 3 Script: App Verification + Live Regex Tester + Regex Pattern Library
+ * Day 4 Script: Live Regex Tester + Regex Pattern Library + Regex Code Generator
  */
 
 const MAX_MATCHES = 500;
@@ -293,7 +293,7 @@ const PATTERN_LIBRARY = [
     id: "semver",
     name: "Semantic Version (SemVer)",
     category: "Programming",
-    regex: "\\bv?(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?\\b",
+    regex: "\\bv?(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?\\b",
     flags: ["g"],
     explanation: "Validates complete SemVer 2.0 specifications with major.minor.patch numbers and optional pre-release/build metadata.",
     exampleInput: "Packages: v1.0.0, 2.4.15-beta.1, 0.9.3 (invalid: 1.2)",
@@ -484,6 +484,250 @@ function renderMatchDetails(container, matches, truncated) {
   container.innerHTML = cardsHtml + truncationNote;
 }
 
+/* ==========================================================================
+   Day 4: Code Generation Helpers
+   ========================================================================== */
+
+/**
+ * Escapes characters for standard double-quoted string literals.
+ */
+function escapeStringLiteral(str, quoteChar = '"') {
+  if (!str) return "";
+  return str
+    .replace(/\\/g, "\\\\")
+    .replace(new RegExp(quoteChar, "g"), `\\${quoteChar}`)
+    .replace(/\r/g, "\\r")
+    .replace(/\n/g, "\\n")
+    .replace(/\t/g, "\\t");
+}
+
+/**
+ * Escapes unescaped forward slashes for JavaScript and PHP regex delimiters.
+ */
+function escapeRegexDelimiters(pattern) {
+  if (!pattern) return "";
+  return pattern.replace(/(^|[^\\])\//g, "$1\\/");
+}
+
+/**
+ * Generates JavaScript (ES6+) validation & matching code snippet.
+ */
+function generateJavaScriptCode(pattern, flags, sampleText) {
+  const escapedPattern = escapeRegexDelimiters(pattern);
+  const cleanFlags = (flags || "").replace(/[^gimsuy]/gi, "");
+  const escapedText = escapeStringLiteral(sampleText, '"');
+
+  return `// ==========================================
+// JavaScript (ES6+) Regex Validation & Match
+// ==========================================
+
+const pattern = /${escapedPattern}/${cleanFlags};
+const sampleText = "${escapedText}";
+
+// 1. Validation test (returns true / false)
+const isMatch = pattern.test(sampleText);
+console.log("Validation status:", isMatch ? "MATCH FOUND (PASS)" : "NO MATCH (FAIL)");
+
+// 2. Extract match results
+if (isMatch) {
+  // If global flag 'g' is used, retrieve all matching substrings
+  const allMatches = sampleText.match(pattern);
+  console.log("All matches found:", allMatches);
+
+  // Reset lastIndex for stateful global expressions
+  pattern.lastIndex = 0;
+  const matchDetails = pattern.exec(sampleText);
+
+  if (matchDetails) {
+    console.log(\`First match: "\${matchDetails[0]}" at position \${matchDetails.index}\`);
+    if (matchDetails.length > 1) {
+      console.log("Captured groups:", matchDetails.slice(1));
+    }
+  }
+} else {
+  console.log("The regular expression did not match the given sample text.");
+}`;
+}
+
+/**
+ * Generates Python (re module) validation & matching code snippet.
+ */
+function generatePythonCode(pattern, flags, sampleText) {
+  const flagMap = {
+    i: "re.IGNORECASE",
+    m: "re.MULTILINE",
+    s: "re.DOTALL",
+    u: "re.UNICODE",
+    x: "re.VERBOSE"
+  };
+
+  const activeFlags = [];
+  for (const char of (flags || "").toLowerCase()) {
+    if (flagMap[char] && !activeFlags.includes(flagMap[char])) {
+      activeFlags.push(flagMap[char]);
+    }
+  }
+
+  const flagsExpr = activeFlags.length > 0 ? activeFlags.join(" | ") : "0";
+  const escapedPattern = (pattern || "").replace(/"/g, '\\"');
+  const escapedText = escapeStringLiteral(sampleText, '"');
+
+  return `# ==========================================
+# Python (re module) Regex Validation & Match
+# ==========================================
+
+import re
+
+pattern = r"${escapedPattern}"
+sample_text = "${escapedText}"
+flags = ${flagsExpr}
+
+# 1. Search for pattern match in text
+match = re.search(pattern, sample_text, flags=flags)
+
+if match:
+    print("Validation status: MATCH FOUND (PASS)")
+    print(f"Matched text: '{match.group(0)}' at indices {match.span()}")
+
+    # Display capture groups if present
+    if match.groups():
+        print(f"Capture groups: {match.groups()}")
+
+    # 2. Extract all non-overlapping matches
+    all_matches = re.findall(pattern, sample_text, flags=flags)
+    print(f"Total occurrences ({len(all_matches)}): {all_matches}")
+else:
+    print("Validation status: NO MATCH (FAIL)")
+    print("The regular expression did not match the given sample text.")`;
+}
+
+/**
+ * Generates PHP (preg_match / preg_match_all) validation & matching code snippet.
+ */
+function generatePhpCode(pattern, flags, sampleText) {
+  // PHP preg_match handles 'g' through preg_match_all rather than delimiter flag
+  const phpFlags = (flags || "").replace(/[^imsux]/gi, "");
+
+  const escapedPattern = (pattern || "")
+    .replace(/(^|[^\\])\//g, "$1\\/")
+    .replace(/\$/g, "\\$");
+
+  const escapedText = (sampleText || "")
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"')
+    .replace(/\$/g, "\\$")
+    .replace(/\r/g, "\\r")
+    .replace(/\n/g, "\\n");
+
+  return `<?php
+// ==========================================
+// PHP Regex Validation & Matching Example
+// ==========================================
+
+$pattern = '/${escapedPattern}/${phpFlags}';
+$sampleText = "${escapedText}";
+
+// 1. Single match test
+if (preg_match($pattern, $sampleText, $singleMatch)) {
+    echo "Validation status: MATCH FOUND (PASS)\\n";
+    echo "First matched string: '{$singleMatch[0]}'\\n";
+
+    // 2. Extract all matches with character positions
+    $matchCount = preg_match_all($pattern, $sampleText, $allMatches, PREG_OFFSET_CAPTURE);
+    echo "Total matches found: {$matchCount}\\n";
+
+    foreach ($allMatches[0] as $index => $matchInfo) {
+        $text = $matchInfo[0];
+        $offset = $matchInfo[1];
+        echo "  Match #" . ($index + 1) . ": '{$text}' at position {$offset}\\n";
+    }
+} else {
+    echo "Validation status: NO MATCH (FAIL)\\n";
+    echo "The regular expression did not match the given sample text.\\n";
+}
+?>`;
+}
+
+/**
+ * Generates Java (java.util.regex) validation & matching code snippet.
+ */
+function generateJavaCode(pattern, flags, sampleText) {
+  // In Java string literals, every backslash must be doubled (\\)
+  const escapedPattern = (pattern || "")
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"')
+    .replace(/\r/g, "\\r")
+    .replace(/\n/g, "\\n");
+
+  const escapedText = (sampleText || "")
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"')
+    .replace(/\r/g, "\\r")
+    .replace(/\n/g, "\\n");
+
+  const flagMap = {
+    i: "Pattern.CASE_INSENSITIVE",
+    m: "Pattern.MULTILINE",
+    s: "Pattern.DOTALL",
+    u: "Pattern.UNICODE_CASE"
+  };
+
+  const activeFlags = [];
+  for (const char of (flags || "").toLowerCase()) {
+    if (flagMap[char] && !activeFlags.includes(flagMap[char])) {
+      activeFlags.push(flagMap[char]);
+    }
+  }
+
+  const compileArgs = activeFlags.length > 0
+    ? `regex, ${activeFlags.join(" | ")}`
+    : `regex`;
+
+  return `// ==========================================
+// Java (java.util.regex) Regex Validation & Match
+// ==========================================
+
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
+public class RegexValidator {
+    public static void main(String[] args) {
+        // Double-escaped regex pattern for Java String literal
+        String regex = "${escapedPattern}";
+        String sampleText = "${escapedText}";
+
+        // Compile regex pattern
+        Pattern pattern = Pattern.compile(${compileArgs});
+        Matcher matcher = pattern.matcher(sampleText);
+
+        boolean found = false;
+        int matchCount = 0;
+
+        // Iterate through all matches
+        while (matcher.find()) {
+            found = true;
+            matchCount++;
+            System.out.println("Match #" + matchCount + ": '" + matcher.group() + 
+                               "' found at [" + matcher.start() + ".." + matcher.end() + "]");
+
+            // Display capture groups if any
+            if (matcher.groupCount() > 0) {
+                for (int i = 1; i <= matcher.groupCount(); i++) {
+                    System.out.println("  Group $" + i + ": " + matcher.group(i));
+                }
+            }
+        }
+
+        if (!found) {
+            System.out.println("Validation status: NO MATCH (FAIL)");
+            System.out.println("The regular expression did not match the given sample text.");
+        } else {
+            System.out.println("Validation status: MATCH FOUND (PASS) - Total: " + matchCount);
+        }
+    }
+}`;
+}
+
 if (typeof document !== "undefined") {
   document.addEventListener("DOMContentLoaded", () => {
     // Top-level app status elements
@@ -517,8 +761,23 @@ if (typeof document !== "undefined") {
     const libraryCountPill = document.getElementById("library-count-pill");
     const toastContainer = document.getElementById("toast-container");
 
+    // Code Generator elements
+    const generatorPatternInput = document.getElementById("generator-pattern");
+    const generatorFlagsInput = document.getElementById("generator-flags");
+    const generatorLangSelect = document.getElementById("generator-lang");
+    const generatorSampleTextInput = document.getElementById("generator-sample-text");
+    const generatorErrorBanner = document.getElementById("generator-error");
+    const generatorCodeOutput = document.getElementById("generator-code-output");
+    const generatorCodeMeta = document.getElementById("generator-code-meta");
+    const langTabs = document.querySelectorAll(".lang-tab");
+    const btnGenerateCode = document.getElementById("btn-generate-code");
+    const btnCopyCode = document.getElementById("btn-copy-code");
+    const btnCopyCodeInline = document.getElementById("btn-copy-code-inline");
+    const btnClearGenerator = document.getElementById("btn-clear-generator");
+
     let activeCategory = "All";
     let searchQuery = "";
+    let currentGeneratorLang = "javascript";
 
     // 1. Update status indicators to confirm Vanilla JS loaded cleanly
     if (statusBadge && statusLabel) {
@@ -527,7 +786,7 @@ if (typeof document !== "undefined") {
     }
 
     if (verifyValue) {
-      verifyValue.textContent = "JS Verified (Day 3)";
+      verifyValue.textContent = "JS Verified (Day 4)";
     }
 
     // 2. Navigation link active state
@@ -816,7 +1075,7 @@ if (typeof document !== "undefined") {
         return;
       }
 
-      // Render cards
+      // Render cards with 3 actions: Copy, Code, Test
       patternCardsGrid.innerHTML = filtered
         .map((item) => {
           const flagsDisplay = item.flags.length > 0 ? item.flags.join("") : "none";
@@ -852,17 +1111,25 @@ if (typeof document !== "undefined") {
                   type="button"
                   class="btn btn-ghost btn-copy-pattern"
                   data-id="${escapeHtml(item.id)}"
-                  title="Copy regex to clipboard"
+                  title="Copy regex pattern to clipboard"
                 >
-                  📋 Copy Pattern
+                  📋 Copy
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-codegen-pattern"
+                  data-id="${escapeHtml(item.id)}"
+                  title="Generate programming language code for this pattern"
+                >
+                  💻 Code
                 </button>
                 <button
                   type="button"
                   class="btn btn-accent btn-test-pattern"
                   data-id="${escapeHtml(item.id)}"
-                  title="Load into Live Regex Tester"
+                  title="Load pattern into Live Regex Tester"
                 >
-                  ⚡ Test Pattern
+                  ⚡ Test
                 </button>
               </div>
             </article>
@@ -871,13 +1138,14 @@ if (typeof document !== "undefined") {
         .join("");
     }
 
-    // Connect Day 3 Pattern Card Actions (Copy & Test)
+    // Connect Day 3 & 4 Pattern Card Actions (Copy, Code & Test)
     patternCardsGrid?.addEventListener("click", (event) => {
       const target = event.target;
       if (!(target instanceof HTMLElement)) {
         return;
       }
 
+      // Action 1: Copy Pattern
       const copyBtn = target.closest(".btn-copy-pattern");
       if (copyBtn) {
         const patternId = copyBtn.getAttribute("data-id");
@@ -899,31 +1167,57 @@ if (typeof document !== "undefined") {
         return;
       }
 
+      // Action 2: Code Generator integration
+      const codegenBtn = target.closest(".btn-codegen-pattern");
+      if (codegenBtn) {
+        const patternId = codegenBtn.getAttribute("data-id");
+        const patternItem = PATTERN_LIBRARY.find((p) => p.id === patternId);
+        if (!patternItem || !generatorPatternInput) return;
+
+        generatorPatternInput.value = patternItem.regex;
+        if (generatorFlagsInput) generatorFlagsInput.value = patternItem.flags.join("");
+        if (generatorSampleTextInput) generatorSampleTextInput.value = patternItem.exampleInput;
+
+        generateCode();
+
+        const generatorElement = document.getElementById("generator");
+        if (generatorElement) {
+          generatorElement.scrollIntoView({ behavior: "smooth" });
+        }
+
+        navLinks.forEach((nav) => {
+          if (nav.getAttribute("href") === "#generator") {
+            navLinks.forEach((item) => item.classList.remove("active"));
+            nav.classList.add("active");
+          }
+        });
+
+        showToast(`Loaded "${patternItem.name}" into Code Generator!`, "💻");
+        generatorPatternInput.focus();
+        return;
+      }
+
+      // Action 3: Test Pattern in Live Tester
       const testBtn = target.closest(".btn-test-pattern");
       if (testBtn) {
         const patternId = testBtn.getAttribute("data-id");
         const patternItem = PATTERN_LIBRARY.find((p) => p.id === patternId);
         if (!patternItem || !patternInput || !testStringInput) return;
 
-        // 1. Populate Live Regex Tester inputs
         patternInput.value = patternItem.regex;
         testStringInput.value = patternItem.exampleInput;
 
-        // 2. Set active flags
         flagCheckboxes.forEach((cb) => {
           cb.checked = patternItem.flags.includes(cb.value);
         });
 
-        // 3. Immediately evaluate regex
         evaluateRegex();
 
-        // 4. Smoothly navigate to Live Regex Tester
         const testerElement = document.getElementById("tester");
         if (testerElement) {
           testerElement.scrollIntoView({ behavior: "smooth" });
         }
 
-        // 5. Update active navigation link
         navLinks.forEach((nav) => {
           if (nav.getAttribute("href") === "#tester") {
             navLinks.forEach((item) => item.classList.remove("active"));
@@ -931,7 +1225,6 @@ if (typeof document !== "undefined") {
           }
         });
 
-        // 6. Give visual feedback
         showToast(`Loaded "${patternItem.name}" into Live Regex Tester!`, "⚡");
         patternInput.focus();
       }
@@ -967,13 +1260,163 @@ if (typeof document !== "undefined") {
       renderPatternCards();
     });
 
-    // Initial render of Live Regex Tester and Pattern Library
+    // 8. Day 4: Regex Code Generator logic & event handlers
+    function formatLangName(lang) {
+      switch (lang) {
+        case "javascript": return "JavaScript";
+        case "python": return "Python";
+        case "php": return "PHP";
+        case "java": return "Java";
+        default: return lang;
+      }
+    }
+
+    function validateRegexPattern(pattern, flags) {
+      if (!pattern) {
+        return { valid: false, error: "Please enter a regular expression pattern." };
+      }
+      try {
+        new RegExp(pattern, flags);
+        return { valid: true, error: null };
+      } catch (err) {
+        return { valid: false, error: err.message };
+      }
+    }
+
+    function generateCode() {
+      if (!generatorPatternInput || !generatorCodeOutput) return;
+
+      const pattern = generatorPatternInput.value.trim();
+      const flags = (generatorFlagsInput?.value || "").trim();
+      const sampleText = generatorSampleTextInput?.value || "";
+      const lang = currentGeneratorLang || "javascript";
+
+      if (!pattern) {
+        if (generatorErrorBanner) {
+          generatorErrorBanner.hidden = false;
+          generatorErrorBanner.textContent = "Please enter a regular expression pattern above.";
+        }
+        generatorCodeOutput.textContent = "// Enter a regular expression pattern above to generate code.";
+        if (generatorCodeMeta) {
+          generatorCodeMeta.textContent = `${formatLangName(lang)} · Waiting for pattern`;
+        }
+        return;
+      }
+
+      // Validate pattern syntax
+      const validation = validateRegexPattern(pattern, flags);
+      if (!validation.valid) {
+        if (generatorErrorBanner) {
+          generatorErrorBanner.hidden = false;
+          generatorErrorBanner.textContent = `Regex syntax error: ${validation.error}`;
+        }
+      } else {
+        if (generatorErrorBanner) {
+          generatorErrorBanner.hidden = true;
+          generatorErrorBanner.textContent = "";
+        }
+      }
+
+      let generated = "";
+      switch (lang) {
+        case "javascript":
+          generated = generateJavaScriptCode(pattern, flags, sampleText);
+          break;
+        case "python":
+          generated = generatePythonCode(pattern, flags, sampleText);
+          break;
+        case "php":
+          generated = generatePhpCode(pattern, flags, sampleText);
+          break;
+        case "java":
+          generated = generateJavaCode(pattern, flags, sampleText);
+          break;
+        default:
+          generated = generateJavaScriptCode(pattern, flags, sampleText);
+      }
+
+      generatorCodeOutput.textContent = generated;
+
+      if (generatorCodeMeta) {
+        const lineCount = generated.split("\n").length;
+        const statusText = validation.valid ? "Ready" : "Warning (Syntax Error)";
+        generatorCodeMeta.textContent = `${formatLangName(lang)} · ${lineCount} lines · ${statusText}`;
+      }
+    }
+
+    function setGeneratorLanguage(lang) {
+      currentGeneratorLang = lang;
+      if (generatorLangSelect) {
+        generatorLangSelect.value = lang;
+      }
+      langTabs.forEach((tab) => {
+        const isActive = tab.getAttribute("data-lang") === lang;
+        tab.classList.toggle("is-active", isActive);
+        tab.setAttribute("aria-selected", isActive ? "true" : "false");
+      });
+      generateCode();
+    }
+
+    // Generator UI listeners
+    generatorLangSelect?.addEventListener("change", (e) => {
+      setGeneratorLanguage(e.target.value);
+    });
+
+    langTabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const lang = tab.getAttribute("data-lang");
+        if (lang) {
+          setGeneratorLanguage(lang);
+        }
+      });
+    });
+
+    generatorPatternInput?.addEventListener("input", generateCode);
+    generatorFlagsInput?.addEventListener("input", generateCode);
+    generatorSampleTextInput?.addEventListener("input", generateCode);
+
+    btnGenerateCode?.addEventListener("click", () => {
+      generateCode();
+      showToast(`Generated ${formatLangName(currentGeneratorLang)} code!`, "⚡");
+    });
+
+    function handleCopyGeneratedCode(buttonEl) {
+      if (!generatorCodeOutput) return;
+      const codeText = generatorCodeOutput.textContent;
+      if (!codeText) return;
+
+      copyToClipboard(codeText, () => {
+        const originalText = buttonEl ? buttonEl.innerHTML : "";
+        if (buttonEl) {
+          buttonEl.textContent = "✓ Copied!";
+          window.setTimeout(() => {
+            buttonEl.innerHTML = originalText;
+          }, 1800);
+        }
+        showToast(`Copied ${formatLangName(currentGeneratorLang)} code to clipboard!`, "📋");
+      });
+    }
+
+    btnCopyCode?.addEventListener("click", () => handleCopyGeneratedCode(btnCopyCode));
+    btnCopyCodeInline?.addEventListener("click", () => handleCopyGeneratedCode(btnCopyCodeInline));
+
+    btnClearGenerator?.addEventListener("click", () => {
+      if (generatorPatternInput) generatorPatternInput.value = "";
+      if (generatorFlagsInput) generatorFlagsInput.value = "";
+      if (generatorSampleTextInput) generatorSampleTextInput.value = "";
+      generateCode();
+      generatorPatternInput?.focus();
+      showToast("Cleared code generator inputs.", "🧹");
+    });
+
+    // Initial render of Live Regex Tester, Pattern Library and Code Generator
     evaluateRegex();
     renderPatternCards();
+    generateCode();
 
     // Console verification message
     console.info(
-      "%cRegex Lab – Developer Toolkit%c initialized successfully (Day 3 · Regex Pattern Library).",
+      "%cRegex Lab – Developer Toolkit%c initialized successfully (Day 4 · Regex Code Generator).",
       "color: #a855f7; font-weight: bold;",
       "color: #93c5fd;"
     );
@@ -985,6 +1428,10 @@ if (typeof module !== "undefined" && module.exports) {
     escapeHtml,
     collectMatches,
     buildHighlightedHtml,
-    PATTERN_LIBRARY
+    PATTERN_LIBRARY,
+    generateJavaScriptCode,
+    generatePythonCode,
+    generatePhpCode,
+    generateJavaCode
   };
 }

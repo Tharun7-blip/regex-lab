@@ -2,7 +2,7 @@
 
 A modern, client-side developer toolkit for crafting, testing, and understanding regular expressions directly in the browser.
 
-> **Project Status:** Day 3 of 7 — Regex Pattern Library Implemented
+> **Project Status:** Day 4 of 7 — Regex Code Generator Implemented
 
 ---
 
@@ -12,6 +12,7 @@ A modern, client-side developer toolkit for crafting, testing, and understanding
 - **Day 1:** Established the project structure, dark glassmorphism UI foundation, and Vanilla JS load verification.
 - **Day 2:** Built the **Live Regex Tester** with real-time pattern evaluation, flag toggles (`g`, `i`, `m`, `s`, `u`), safe HTML-escaped match highlighting, match breakdown with numbered and named capture groups, error handling, and sample/clear controls.
 - **Day 3:** Built the **Regex Pattern Library** featuring 26 curated, verified regular expressions across 7 essential categories, real-time search, category filtering, one-click clipboard copying with toast notifications, and seamless loading into the Live Regex Tester.
+- **Day 4:** Built the **Regex Code Generator** to export regular expressions into ready-to-use, syntactically appropriate validation and matching code for **JavaScript**, **Python**, **PHP**, and **Java**, complete with language-specific escaping, customizable test strings, instant copy, and one-click integration from the Pattern Library.
 
 ---
 
@@ -38,8 +39,27 @@ A modern, client-side developer toolkit for crafting, testing, and understanding
   7. **Programming** — CSS hex color literals (3/6/8-digit), Semantic Versioning (SemVer 2.0), UUID v4 identifiers, HTML/XML tag elements.
 - **Rich Pattern Cards:** Each card displays the pattern name, category badge, active flags, plain-English explanation, syntax-highlighted regex code box, realistic example input, and expected matching output.
 - **Live Search & Category Filtering:** Instant multi-field search (searches name, regex, explanation, input, output, and category) plus quick category filter chips and a responsive empty-state screen with a one-click **Reset Filters** button.
-- **Deep Integration with Live Regex Tester:** Clicking **⚡ Test Pattern** automatically populates the regex input, sets the appropriate flags, inserts the sample text into the test string area, triggers immediate evaluation and match highlighting, and smoothly scrolls to the Live Regex Tester.
-- **One-Click Copy & Toast Notifications:** Clicking **📋 Copy Pattern** copies the regular expression directly to the system clipboard, toggles the button state to `✓ Copied!`, and presents a sleek, glassmorphic toast notification.
+- **Deep Integration with Live Regex Tester & Code Generator:** Pattern cards feature **⚡ Test** to evaluate in the Live Tester, **💻 Code** to generate multi-language code, and **📋 Copy** to copy the pattern directly.
+- **One-Click Copy & Toast Notifications:** Copies regular expressions to the clipboard with animated button states and non-intrusive floating toasts.
+
+---
+
+## Day 4 Features (Regex Code Generator)
+
+- **4 Supported Programming Languages:**
+  1. **JavaScript (ES6+)** — Generates `/pattern/flags` regex literals with `regex.test()` boolean validation, `sampleText.match()` global extraction, and `regex.exec()` capture group extraction.
+  2. **Python (`re` module)** — Generates raw string literals `r"..."`, maps flags to `re.IGNORECASE | re.MULTILINE | re.DOTALL`, performs `re.search()`, and extracts matches with `re.findall()`.
+  3. **PHP (`preg_match` / `preg_match_all`)** — Generates delimited `$pattern = '/.../flags';` with `PREG_OFFSET_CAPTURE` and handles PHP string quote & dollar sign variable escaping.
+  4. **Java (`java.util.regex`)** — Generates `Pattern.compile()` with bitmask flags (`Pattern.CASE_INSENSITIVE | Pattern.MULTILINE`), `Matcher.find()`, and performs rigorous Java double-escaping (`\\d` $\rightarrow$ `\\\\d`) for Java String literals.
+- **Accurate Syntax Escaping:**
+  - Properly escapes delimiter forward slashes `/` for JavaScript and PHP.
+  - Accurately doubles backslashes for Java String literals to prevent compiler syntax errors.
+  - Escapes quote characters, dollar signs (`$`), and newlines in sample test strings across all target languages.
+- **Custom Sample Text:** Allows developers to customize the sample test string inside the generated snippet or automatically import sample text from the Pattern Library.
+- **Live Validation & Error Reporting:** Detects invalid regex syntax and displays clear, helpful error warnings in a dedicated error banner without crashing the application.
+- **Interactive Language Switching:** Switch languages using either the dropdown selector or one-click language tabs (`JavaScript`, `Python`, `PHP`, `Java`) with instant code regeneration.
+- **One-Click Code Copy:** Dedicated **Copy Code** action with visual `✓ Copied!` confirmation and floating toast notifications.
+- **Pattern Library Integration:** Clicking **💻 Code** on any card in the Pattern Library immediately loads the pattern, flags, and sample text into the Code Generator and scrolls directly to the code output.
 
 ---
 
@@ -47,7 +67,7 @@ A modern, client-side developer toolkit for crafting, testing, and understanding
 
 - **HTML5** — Semantic page structure, accessible ARIA attributes
 - **CSS3** — Dark theme, purple/blue accents, glassmorphism cards, responsive CSS Grid and Flexbox layout
-- **Vanilla JavaScript** — Real-time `RegExp` engine, dynamic card filtering, clipboard management, toast system (zero external libraries, no frameworks, no database)
+- **Vanilla JavaScript** — Real-time `RegExp` engine, multi-language code generation, clipboard management, toast system (zero external libraries, no frameworks, no database)
 
 ---
 
@@ -55,9 +75,9 @@ A modern, client-side developer toolkit for crafting, testing, and understanding
 
 - **Live Regex Tester** *(Active · Day 2)* — Real-time pattern matching, flag controls (`g`, `i`, `m`, `s`, `u`), and match highlighting
 - **Pattern Library** *(Active · Day 3)* — 26 curated developer snippets across 7 categories with live search, copy, and tester loading
+- **Code Generator** *(Active · Day 4)* — Multi-language code generation for JavaScript, Python, PHP, and Java
 - **Match & Replace Sandbox** — Interactive substitution preview with capture group backreferences
 - **Regex Explainer** — Token-by-token plain-English breakdown of patterns
-- **Code Generator** — Ready-to-use export snippets for JavaScript, Python, and Go
 - **Saved Snippets** — LocalStorage-backed bookmarks and JSON test case export
 
 ---
@@ -109,5 +129,12 @@ Because Regex Lab uses pure HTML5, CSS3, and Vanilla JavaScript, no build tools 
 2. **Regex Pattern Library:**
    - Browse through the 7 category chips (`Basic Patterns`, `Numbers`, `Text`, `Email and Web`, `Password`, `Date and Time`, `Programming`) or select `All`.
    - Use the live search bar to find patterns by keyword (e.g., `email`, `uuid`, `hex`, `slug`, `date`).
-   - Click **📋 Copy Pattern** to quickly copy any pattern to your clipboard.
-   - Click **⚡ Test Pattern** to load the pattern, flags, and sample text directly into the Live Regex Tester for instant experimentation.
+   - Click **📋 Copy** to copy any pattern to your clipboard.
+   - Click **💻 Code** to generate ready-to-run code in JavaScript, Python, PHP, or Java.
+   - Click **⚡ Test** to load the pattern, flags, and sample text directly into the Live Regex Tester for instant experimentation.
+3. **Regex Code Generator:**
+   - Enter or paste any regular expression pattern and flags.
+   - Select your target language tab (**JavaScript**, **Python**, **PHP**, or **Java**).
+   - Optionally edit the **Sample Test String** to match your application's data.
+   - Click **⚡ Generate Code** (or watch it generate live as you type).
+   - Click **Copy Code** to copy the complete snippet directly to your clipboard.
