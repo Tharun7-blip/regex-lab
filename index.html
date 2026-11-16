@@ -46,6 +46,7 @@
         <a href="#tester" class="nav-link">Regex Tester</a>
         <a href="#library" class="nav-link">Pattern Library</a>
         <a href="#generator" class="nav-link">Code Generator</a>
+        <a href="#cheatsheet" class="nav-link">Cheat Sheet</a>
         <a href="#tools" class="nav-link">Planned Tools</a>
         <a href="#roadmap" class="nav-link">Roadmap</a>
       </nav>
@@ -63,8 +64,8 @@
     <section id="dashboard" class="container dashboard-hero">
       <div class="hero-card glass-card">
         <div class="hero-badge">
-          <span class="mono-tag">Day 4 / 7</span>
-          <span>Regex Code Generator</span>
+          <span class="mono-tag">Day 5 / 7</span>
+          <span>Interactive Regex Cheat Sheet</span>
         </div>
 
         <h1 class="hero-title">Regex Lab</h1>
@@ -86,7 +87,7 @@
           </div>
           <div class="meta-pill">
             <span class="meta-label">Current Phase</span>
-            <span class="meta-value">Day 4 · Code Generator Active</span>
+            <span class="meta-value">Day 5 · Cheat Sheet Active</span>
           </div>
         </div>
       </div>
@@ -364,6 +365,201 @@
       </div>
     </section>
 
+    <!-- Day 5: Interactive Regex Cheat Sheet Module -->
+    <section id="cheatsheet" class="container cheatsheet-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Interactive Regex Cheat Sheet</h2>
+          <p class="section-subtitle">
+            Comprehensive quick reference for metacharacters, character classes, quantifiers, anchors, lookarounds, and common patterns.
+          </p>
+        </div>
+        <span class="section-pill" id="cheatsheet-count-pill">Showing 43 reference items</span>
+      </div>
+
+      <div class="glass-card cheatsheet-shell">
+        <!-- Search & Filter Controls -->
+        <div class="cheatsheet-controls">
+          <div class="cheatsheet-search-wrap">
+            <label for="cheatsheet-search" class="sr-only">Search regex cheat sheet</label>
+            <div class="search-input-box">
+              <span class="search-icon" aria-hidden="true">🔍</span>
+              <input
+                type="search"
+                id="cheatsheet-search"
+                class="cheatsheet-search"
+                placeholder="Search cheat sheet (e.g. digit, lookahead, boundary, quantifier, email)..."
+                autocomplete="off"
+              />
+              <button type="button" id="btn-clear-cheatsheet-search" class="btn-clear-search" aria-label="Clear search" hidden>×</button>
+            </div>
+          </div>
+
+          <div class="category-filters" id="cheatsheet-category-filters" role="group" aria-label="Cheat Sheet Categories">
+            <button type="button" class="category-chip cheat-category-chip is-active" data-category="All">All</button>
+            <button type="button" class="category-chip cheat-category-chip" data-category="Basic Characters">Basic Characters</button>
+            <button type="button" class="category-chip cheat-category-chip" data-category="Character Classes">Character Classes</button>
+            <button type="button" class="category-chip cheat-category-chip" data-category="Quantifiers">Quantifiers</button>
+            <button type="button" class="category-chip cheat-category-chip" data-category="Anchors">Anchors</button>
+            <button type="button" class="category-chip cheat-category-chip" data-category="Groups">Groups</button>
+            <button type="button" class="category-chip cheat-category-chip" data-category="Lookarounds">Lookarounds</button>
+            <button type="button" class="category-chip cheat-category-chip" data-category="Flags">Flags</button>
+            <button type="button" class="category-chip cheat-category-chip" data-category="Common Examples">Common Examples</button>
+          </div>
+        </div>
+
+        <!-- Cheat Sheet Reference Cards Grid -->
+        <div id="cheatsheet-cards-grid" class="cheatsheet-cards-grid" aria-live="polite">
+          <!-- Dynamically populated via JS -->
+        </div>
+
+        <!-- Common Beginner Mistakes Guide -->
+        <div class="mistakes-guide-panel" id="common-mistakes">
+          <div class="mistakes-guide-header">
+            <div>
+              <h3 class="mistakes-title">⚠️ Common Beginner Mistakes &amp; Best Practices</h3>
+              <p class="mistakes-subtitle">
+                Avoid the most frequent pitfalls developers make when working with regular expressions.
+              </p>
+            </div>
+            <span class="mistakes-badge">5 Key Lessons</span>
+          </div>
+
+          <div class="mistakes-grid">
+            <!-- 1. Escaping Special Characters -->
+            <article class="mistake-card">
+              <div class="mistake-head">
+                <span class="mistake-num">1</span>
+                <h4 class="mistake-name">Forgetting to Escape Special Characters</h4>
+              </div>
+              <p class="mistake-desc">
+                Metacharacters like <code>.</code>, <code>+</code>, <code>*</code>, <code>?</code>, <code>^</code>, and <code>$</code> have special meanings in regex. If you want to match a literal dot or plus sign, you must escape it with a backslash.
+              </p>
+              <div class="mistake-compare">
+                <div class="compare-item wrong">
+                  <span class="compare-tag">Wrong</span>
+                  <code>192.168.1.1</code>
+                  <span class="compare-note">Dot matches ANY character (e.g. 192a168b1c1 matches!)</span>
+                </div>
+                <div class="compare-item correct">
+                  <span class="compare-tag">Correct</span>
+                  <code>192\.168\.1\.1</code>
+                  <span class="compare-note">Escaped dot matches only literal periods</span>
+                </div>
+              </div>
+              <div class="mistake-action">
+                <button type="button" class="btn btn-ghost btn-sm js-test-mistake" data-pattern="192\.168\.1\.1" data-text="IP: 192.168.1.1 vs 192a168b1c1" data-flags="g">⚡ Try Correct in Tester</button>
+              </div>
+            </article>
+
+            <!-- 2. Confusing * and + -->
+            <article class="mistake-card">
+              <div class="mistake-head">
+                <span class="mistake-num">2</span>
+                <h4 class="mistake-name">Confusing * (Zero or More) and + (One or More)</h4>
+              </div>
+              <p class="mistake-desc">
+                <code>*</code> matches zero or more times, which means it happily matches an empty string. If you require at least one character, always use <code>+</code>.
+              </p>
+              <div class="mistake-compare">
+                <div class="compare-item wrong">
+                  <span class="compare-tag">Wrong</span>
+                  <code>ID:\s*\d*</code>
+                  <span class="compare-note">Matches "ID:" even when no ID number is present</span>
+                </div>
+                <div class="compare-item correct">
+                  <span class="compare-tag">Correct</span>
+                  <code>ID:\s*\d+</code>
+                  <span class="compare-note">Ensures at least one digit is present after the label</span>
+                </div>
+              </div>
+              <div class="mistake-action">
+                <button type="button" class="btn btn-ghost btn-sm js-test-mistake" data-pattern="ID:\s*\d+" data-text="Valid: ID: 4092&#10;Invalid: ID:" data-flags="g">⚡ Try Correct in Tester</button>
+              </div>
+            </article>
+
+            <!-- 3. Forgetting Anchors -->
+            <article class="mistake-card">
+              <div class="mistake-head">
+                <span class="mistake-num">3</span>
+                <h4 class="mistake-name">Forgetting ^ and $ Anchors for Exact Validation</h4>
+              </div>
+              <p class="mistake-desc">
+                Without start <code>^</code> and end <code>$</code> anchors, a pattern will match anywhere inside a larger string. To validate an entire string, enclose it between anchors.
+              </p>
+              <div class="mistake-compare">
+                <div class="compare-item wrong">
+                  <span class="compare-tag">Wrong</span>
+                  <code>\d{4}</code>
+                  <span class="compare-note">Accepts "abc12345def" because it finds "1234" inside</span>
+                </div>
+                <div class="compare-item correct">
+                  <span class="compare-tag">Correct</span>
+                  <code>^\d{4}$</code>
+                  <span class="compare-note">Rejects invalid lengths; matches only exactly 4 digits</span>
+                </div>
+              </div>
+              <div class="mistake-action">
+                <button type="button" class="btn btn-ghost btn-sm js-test-mistake" data-pattern="^\d{4}$" data-text="1234&#10;abc12345&#10;99" data-flags="m">⚡ Try Correct in Tester</button>
+              </div>
+            </article>
+
+            <!-- 4. Incorrect Character Ranges -->
+            <article class="mistake-card">
+              <div class="mistake-head">
+                <span class="mistake-num">4</span>
+                <h4 class="mistake-name">Incorrect Character Ranges (e.g. [A-z] vs [a-zA-Z])</h4>
+              </div>
+              <p class="mistake-desc">
+                In ASCII tables, characters between uppercase <code>Z</code> (90) and lowercase <code>a</code> (97) include symbols like <code>[</code>, <code>\</code>, <code>]</code>, <code>^</code>, <code>_</code>, and <code>`</code>. Using <code>[A-z]</code> accidentally matches these symbols.
+              </p>
+              <div class="mistake-compare">
+                <div class="compare-item wrong">
+                  <span class="compare-tag">Wrong</span>
+                  <code>[A-z]+</code>
+                  <span class="compare-note">Matches unwanted symbols like "User_Name" or "Test[1]"</span>
+                </div>
+                <div class="compare-item correct">
+                  <span class="compare-tag">Correct</span>
+                  <code>[a-zA-Z]+</code>
+                  <span class="compare-note">Explicitly matches only English alphabet characters</span>
+                </div>
+              </div>
+              <div class="mistake-action">
+                <button type="button" class="btn btn-ghost btn-sm js-test-mistake" data-pattern="[a-zA-Z]+" data-text="LettersOnly User_Name Test[1]" data-flags="g">⚡ Try Correct in Tester</button>
+              </div>
+            </article>
+
+            <!-- 5. Greedy vs Lazy Matching -->
+            <article class="mistake-card">
+              <div class="mistake-head">
+                <span class="mistake-num">5</span>
+                <h4 class="mistake-name">Greedy vs. Lazy Matching</h4>
+              </div>
+              <p class="mistake-desc">
+                Standard quantifiers (<code>*</code>, <code>+</code>) are <em>greedy</em>: they swallow as much text as possible. Append <code>?</code> (e.g. <code>*?</code> or <code>+?</code>) to make them <em>lazy</em> so they stop at the first delimiter.
+              </p>
+              <div class="mistake-compare">
+                <div class="compare-item wrong">
+                  <span class="compare-tag">Greedy</span>
+                  <code>&lt;p&gt;.*&lt;\/p&gt;</code>
+                  <span class="compare-note">Matches from first &lt;p&gt; to LAST &lt;/p&gt; across multiple tags</span>
+                </div>
+                <div class="compare-item correct">
+                  <span class="compare-tag">Lazy</span>
+                  <code>&lt;p&gt;.*?&lt;\/p&gt;</code>
+                  <span class="compare-note">Matches each individual paragraph element separately</span>
+                </div>
+              </div>
+              <div class="mistake-action">
+                <button type="button" class="btn btn-ghost btn-sm js-test-mistake" data-pattern="&lt;p&gt;.*?&lt;\/p&gt;" data-text="&lt;p&gt;First Paragraph&lt;/p&gt;&lt;p&gt;Second Paragraph&lt;/p&gt;" data-flags="g">⚡ Try Correct in Tester</button>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Toolkit Modules Overview -->
     <section id="tools" class="container tools-section">
       <div class="section-header">
@@ -373,7 +569,7 @@
             Developer utilities scheduled across the 7-day build.
           </p>
         </div>
-        <span class="section-pill" id="module-feedback">3 active · 3 planned</span>
+        <span class="section-pill" id="module-feedback">4 active · 2 planned</span>
       </div>
 
       <div class="tools-grid">
@@ -419,28 +615,28 @@
           </div>
         </article>
 
+        <article class="tool-card glass-card is-active-module" tabindex="0" data-tool="Regex Cheat Sheet" data-href="#cheatsheet">
+          <div class="tool-card-top">
+            <span class="tool-icon" aria-hidden="true">📖</span>
+            <span class="tool-badge badge-active">Active · Day 5</span>
+          </div>
+          <h3 class="tool-title">Regex Cheat Sheet</h3>
+          <p class="tool-description">
+            Interactive syntax guide with 43 reference cards across 8 categories and Common Mistakes guide.
+          </p>
+          <div class="tool-footer">
+            <span class="tool-status">Ready above ↑</span>
+          </div>
+        </article>
+
         <article class="tool-card glass-card" tabindex="0" data-tool="Match & Replace">
           <div class="tool-card-top">
             <span class="tool-icon" aria-hidden="true">⇄</span>
-            <span class="tool-badge">Planned · Day 5</span>
+            <span class="tool-badge">Planned · Day 6</span>
           </div>
           <h3 class="tool-title">Match &amp; Replace</h3>
           <p class="tool-description">
             Interactive substitution sandbox to preview replacements using backreferences and tokens.
-          </p>
-          <div class="tool-footer">
-            <span class="tool-status">Placeholder module</span>
-          </div>
-        </article>
-
-        <article class="tool-card glass-card" tabindex="0" data-tool="Regex Explainer">
-          <div class="tool-card-top">
-            <span class="tool-icon" aria-hidden="true">?!</span>
-            <span class="tool-badge">Planned · Day 6</span>
-          </div>
-          <h3 class="tool-title">Regex Explainer</h3>
-          <p class="tool-description">
-            Token-by-token breakdown translating complex expressions into clear, readable descriptions.
           </p>
           <div class="tool-footer">
             <span class="tool-status">Placeholder module</span>
@@ -475,7 +671,8 @@
           <li class="checklist-item done">Day 2: Live Regex Tester, highlights &amp; capture groups</li>
           <li class="checklist-item done">Day 3: Regex Pattern Library, search, copy &amp; tester integration</li>
           <li class="checklist-item done">Day 4: Regex Code Generator for JavaScript, Python, PHP &amp; Java</li>
-          <li class="checklist-item pending">Days 5–7: Replace, Explainer, Export &amp; Storage</li>
+          <li class="checklist-item done">Day 5: Interactive Regex Cheat Sheet &amp; Common Mistakes guide</li>
+          <li class="checklist-item pending">Days 6–7: Replace, Explainer &amp; Storage</li>
         </ul>
       </div>
     </section>
@@ -491,7 +688,7 @@
         <strong>Regex Lab</strong> · Modern Developer Toolkit
       </p>
       <p class="footer-meta">
-        Day 4 Build · HTML5, CSS3 &amp; Vanilla JavaScript
+        Day 5 Build · HTML5, CSS3 &amp; Vanilla JavaScript
       </p>
     </div>
   </footer>

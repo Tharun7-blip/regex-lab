@@ -2,7 +2,7 @@
 
 A modern, client-side developer toolkit for crafting, testing, and understanding regular expressions directly in the browser.
 
-> **Project Status:** Day 4 of 7 — Regex Code Generator Implemented
+> **Project Status:** Day 5 of 7 — Interactive Regex Cheat Sheet Implemented
 
 ---
 
@@ -13,6 +13,7 @@ A modern, client-side developer toolkit for crafting, testing, and understanding
 - **Day 2:** Built the **Live Regex Tester** with real-time pattern evaluation, flag toggles (`g`, `i`, `m`, `s`, `u`), safe HTML-escaped match highlighting, match breakdown with numbered and named capture groups, error handling, and sample/clear controls.
 - **Day 3:** Built the **Regex Pattern Library** featuring 26 curated, verified regular expressions across 7 essential categories, real-time search, category filtering, one-click clipboard copying with toast notifications, and seamless loading into the Live Regex Tester.
 - **Day 4:** Built the **Regex Code Generator** to export regular expressions into ready-to-use, syntactically appropriate validation and matching code for **JavaScript**, **Python**, **PHP**, and **Java**, complete with language-specific escaping, customizable test strings, instant copy, and one-click integration from the Pattern Library.
+- **Day 5:** Built the **Interactive Regex Cheat Sheet** with 43 syntax reference cards organized across 8 categories, instant live search and category filtering, deep integration with the Live Tester and Code Generator, and an interactive **Common Beginner Mistakes Guide** with 5 practical lessons.
 
 ---
 
@@ -63,22 +64,48 @@ A modern, client-side developer toolkit for crafting, testing, and understanding
 
 ---
 
+## Day 5 Features (Interactive Regex Cheat Sheet)
+
+- **8 Comprehensive Reference Categories (43 Cards):**
+  1. **Basic Characters (7 items):** `.` (Any Character), `\d` (Digit), `\D` (Non-Digit), `\w` (Word Character), `\W` (Non-Word), `\s` (Whitespace), `\S` (Non-Whitespace).
+  2. **Character Classes (5 items):** `[abc]` (Character Set), `[a-z]` (Lowercase Range), `[A-Z]` (Uppercase Range), `[0-9]` (Digit Range), `[^abc]` (Negated Set).
+  3. **Quantifiers (6 items):** `*` (0 or more, greedy), `+` (1 or more, greedy), `?` (optional, 0 or 1), `{n}` (exactly n), `{n,}` (n or more), `{n,m}` (between n and m).
+  4. **Anchors (4 items):** `^` (Start of line/string), `$` (End of line/string), `\b` (Word boundary), `\B` (Non-word boundary).
+  5. **Groups (4 items):** `(abc)` (Capturing group), `(?:abc)` (Non-capturing group), `(?<name>abc)` (Named capture group), `a|b` (Alternation / OR).
+  6. **Lookarounds (4 items):** `(?=abc)` (Positive lookahead), `(?!abc)` (Negative lookahead), `(?<=abc)` (Positive lookbehind), `(?<!abc)` (Negative lookbehind).
+  7. **Flags (5 items):** `g` (Global search), `i` (Case-insensitive), `m` (Multiline mode), `s` (DotAll / single-line), `u` (Unicode mode).
+  8. **Common Examples (8 items):** Numbers (integer/decimal), Email address, Indian mobile number (`+91`/`0` prefix), Strong password validation, Date format (`YYYY-MM-DD`), Web URL (`http`/`https`), Uppercase acronyms, Whitespace trim.
+- **Interactive Reference Cards:** Each item features the highlighted regex token/syntax, friendly name, plain-English explanation, realistic example input, expected match output, and 3 actions:
+  - **📋 Copy:** Copies the syntax directly to your clipboard with animated feedback.
+  - **💻 Code:** Opens the Code Generator with the selected pattern pre-populated.
+  - **⚡ Try in Tester:** Instantly sends the pattern, flags, and example input to the Live Regex Tester and scrolls smoothly to the tester.
+- **Instant Search & Category Filtering:** Search across syntax tokens, names, explanations, and examples, filter by category chips, and view dynamic count indicators (`Showing 43 reference items`).
+- **Common Beginner Mistakes Guide:** Explains 5 critical mistakes with wrong vs. correct syntax comparisons and one-click "⚡ Try Correct in Tester" actions:
+  1. Forgetting to escape special characters (`.` vs `\.`).
+  2. Confusing `*` (zero or more) and `+` (one or more).
+  3. Forgetting `^` and `$` anchors for exact string validation.
+  4. Incorrect character ranges (`[A-z]` vs `[a-zA-Z]`).
+  5. Greedy vs. lazy matching (`<p>.*</p>` vs `<p>.*?</p>`).
+
+---
+
 ## Technology Stack
 
 - **HTML5** — Semantic page structure, accessible ARIA attributes
 - **CSS3** — Dark theme, purple/blue accents, glassmorphism cards, responsive CSS Grid and Flexbox layout
-- **Vanilla JavaScript** — Real-time `RegExp` engine, multi-language code generation, clipboard management, toast system (zero external libraries, no frameworks, no database)
+- **Vanilla JavaScript** — Real-time `RegExp` engine, multi-language code generation, cheat sheet catalog, clipboard management, toast system (zero external libraries, no frameworks, no database)
 
 ---
 
 ## Planned Features (7-Day Roadmap)
 
-- **Live Regex Tester** *(Active · Day 2)* — Real-time pattern matching, flag controls (`g`, `i`, `m`, `s`, `u`), and match highlighting
-- **Pattern Library** *(Active · Day 3)* — 26 curated developer snippets across 7 categories with live search, copy, and tester loading
-- **Code Generator** *(Active · Day 4)* — Multi-language code generation for JavaScript, Python, PHP, and Java
-- **Match & Replace Sandbox** — Interactive substitution preview with capture group backreferences
-- **Regex Explainer** — Token-by-token plain-English breakdown of patterns
-- **Saved Snippets** — LocalStorage-backed bookmarks and JSON test case export
+- [x] **Day 1:** Project Initialization & UI Foundation *(Completed)*
+- [x] **Day 2:** Live Regex Tester *(Active)* — Real-time pattern matching, flag controls (`g`, `i`, `m`, `s`, `u`), and match highlighting
+- [x] **Day 3:** Pattern Library *(Active)* — 26 curated developer snippets across 7 categories with live search, copy, and tester loading
+- [x] **Day 4:** Code Generator *(Active)* — Multi-language code generation for JavaScript, Python, PHP, and Java
+- [x] **Day 5:** Interactive Regex Cheat Sheet *(Active)* — 43 reference cards across 8 categories, search, filtering, and Common Mistakes guide
+- [ ] **Day 6:** Regex Explainer — Token-by-token plain-English breakdown of patterns
+- [ ] **Day 7:** Saved Snippets & Test Cases — LocalStorage-backed bookmarks and test case suite
 
 ---
 
@@ -138,3 +165,10 @@ Because Regex Lab uses pure HTML5, CSS3, and Vanilla JavaScript, no build tools 
    - Optionally edit the **Sample Test String** to match your application's data.
    - Click **⚡ Generate Code** (or watch it generate live as you type).
    - Click **Copy Code** to copy the complete snippet directly to your clipboard.
+4. **Interactive Regex Cheat Sheet:**
+   - Browse across the 8 reference category chips (`Basic Characters`, `Character Classes`, `Quantifiers`, `Anchors`, `Groups`, `Lookarounds`, `Flags`, `Common Examples`) or select `All`.
+   - Use the live search bar to quickly locate metacharacters or concepts (e.g. `lookahead`, `boundary`, `digit`, `email`, `unicode`).
+   - Click **📋 Copy** on any reference card to copy the syntax token to your clipboard.
+   - Click **💻 Code** to open and generate code for the pattern in the Code Generator.
+   - Click **⚡ Try in Tester** to instantly populate the pattern, flags, and example text into the Live Regex Tester.
+   - Review the **Common Beginner Mistakes Guide** to understand and test fixes for the 5 most common regex pitfalls with one-click **⚡ Try Correct in Tester** buttons.

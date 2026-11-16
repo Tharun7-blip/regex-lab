@@ -1384,6 +1384,329 @@ a {
 }
 
 /* ==========================================================================
+   Day 5: Interactive Regex Cheat Sheet Workspace
+   ========================================================================== */
+
+.cheatsheet-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.cheatsheet-shell {
+  padding: 1.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.cheatsheet-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.cheatsheet-search-wrap {
+  width: 100%;
+}
+
+.cheatsheet-search {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  outline: none;
+}
+
+.cheatsheet-search::placeholder {
+  color: var(--text-muted);
+}
+
+.cheatsheet-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 1.25rem;
+  margin-top: 0.35rem;
+}
+
+.cheat-card {
+  padding: 1.25rem;
+  border-radius: var(--radius-md);
+  background: rgba(14, 19, 40, 0.65);
+  border: 1px solid var(--border-glass);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition:
+    transform var(--transition-smooth),
+    border-color var(--transition-smooth),
+    background-color var(--transition-smooth),
+    box-shadow var(--transition-smooth);
+  animation: subtleFadeIn 220ms ease-out;
+}
+
+.cheat-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(139, 92, 246, 0.45);
+  background: rgba(22, 30, 60, 0.78);
+  box-shadow:
+    0 16px 36px rgba(2, 6, 23, 0.55),
+    0 0 22px rgba(139, 92, 246, 0.16);
+}
+
+.cheat-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.cheat-card-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.cheat-syntax {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-md);
+  background: rgba(139, 92, 246, 0.2);
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+}
+
+.cheat-name {
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.cheat-desc {
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.cheat-example-box,
+.cheat-expected-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background: rgba(7, 9, 19, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cheat-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: auto;
+  padding-top: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.cheat-card-actions .btn {
+  flex: 1;
+  min-width: 0;
+  padding: 0.42rem 0.6rem;
+  font-size: 0.78rem;
+  text-align: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+/* Common Beginner Mistakes Section */
+.mistakes-guide-panel {
+  padding: 1.65rem;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(14, 19, 40, 0.75) 45%, rgba(139, 92, 246, 0.08) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+  margin-top: 0.75rem;
+}
+
+.mistakes-guide-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.85rem;
+}
+
+.mistakes-title {
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: #fecaca;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.mistakes-subtitle {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
+.mistakes-badge {
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 600;
+  background: rgba(239, 68, 68, 0.16);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+}
+
+.mistakes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+
+.mistake-card {
+  padding: 1.25rem;
+  border-radius: var(--radius-md);
+  background: rgba(7, 9, 19, 0.68);
+  border: 1px solid var(--border-glass);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  transition: transform var(--transition-smooth), border-color var(--transition-smooth);
+}
+
+.mistake-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.mistake-head {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.mistake-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.4), rgba(139, 92, 246, 0.4));
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.mistake-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.mistake-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.mistake-desc code {
+  color: var(--accent-cyan);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  padding: 0.1rem 0.3rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.mistake-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+
+.compare-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid;
+  font-size: 0.78rem;
+}
+
+.compare-item code {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.82rem;
+}
+
+.compare-item.wrong {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+.compare-item.correct {
+  background: rgba(52, 211, 153, 0.08);
+  border-color: rgba(52, 211, 153, 0.3);
+  color: #86efac;
+}
+
+.compare-tag {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.compare-item.wrong .compare-tag {
+  color: #ef4444;
+}
+
+.compare-item.correct .compare-tag {
+  color: #10b981;
+}
+
+.compare-note {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.mistake-action {
+  margin-top: auto;
+  padding-top: 0.35rem;
+}
+
+.mistake-action .btn {
+  width: 100%;
+  justify-content: center;
+}
+
+/* ==========================================================================
    Toast Notification Component
    ========================================================================== */
 
@@ -1576,6 +1899,22 @@ a {
     width: 100%;
     justify-content: space-between;
   }
+
+  .cheatsheet-shell {
+    padding: 1.15rem;
+  }
+
+  .cheatsheet-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mistakes-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mistake-compare {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Respect Reduced Motion Preferences */
@@ -1593,14 +1932,17 @@ a {
   .code-textarea,
   .pattern-card,
   .category-chip,
-  .toast {
+  .toast,
+  .cheat-card,
+  .mistake-card {
     transition: none;
   }
 
   .match-item,
   .error-banner:not([hidden]),
   .pattern-card,
-  .toast {
+  .toast,
+  .cheat-card {
     animation: none;
   }
 }

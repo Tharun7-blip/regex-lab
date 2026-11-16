@@ -728,6 +728,502 @@ public class RegexValidator {
 }`;
 }
 
+/**
+ * ============================================================================
+ * Day 5: Interactive Regex Cheat Sheet Reference Catalog (43 items)
+ * ============================================================================
+ */
+const CHEATSHEET_ITEMS = [
+  // A. Basic Characters (7)
+  {
+    id: "cs-basic-dot",
+    syntax: ".",
+    name: "Any Character (Except Newline)",
+    category: "Basic Characters",
+    pattern: "c.t",
+    flags: ["g"],
+    explanation: "Matches any single character except line terminators (\\n, \\r), unless the 's' (dotAll) flag is enabled.",
+    exampleInput: "cat cut c9t c.t c#t",
+    expectedOutput: "cat, cut, c9t, c.t, c#t"
+  },
+  {
+    id: "cs-basic-digit",
+    syntax: "\\d",
+    name: "Digit Character",
+    category: "Basic Characters",
+    pattern: "\\d+",
+    flags: ["g"],
+    explanation: "Matches any decimal digit character from 0 through 9. Shorthand equivalent to [0-9].",
+    exampleInput: "Agent 007 has 32 apples and 5 oranges.",
+    expectedOutput: "007, 32, 5"
+  },
+  {
+    id: "cs-basic-nondigit",
+    syntax: "\\D",
+    name: "Non-Digit Character",
+    category: "Basic Characters",
+    pattern: "\\D+",
+    flags: ["g"],
+    explanation: "Matches any character that is NOT a decimal digit. Shorthand equivalent to [^0-9].",
+    exampleInput: "Room #404 (Building B)",
+    expectedOutput: "Room #,  (Building B)"
+  },
+  {
+    id: "cs-basic-word",
+    syntax: "\\w",
+    name: "Word Character",
+    category: "Basic Characters",
+    pattern: "\\w+",
+    flags: ["g"],
+    explanation: "Matches any alphanumeric character (a-z, A-Z, 0-9) plus the underscore (_). Equivalent to [a-zA-Z0-9_].",
+    exampleInput: "user_name-42@domain!",
+    expectedOutput: "user_name, 42, domain"
+  },
+  {
+    id: "cs-basic-nonword",
+    syntax: "\\W",
+    name: "Non-Word Character",
+    category: "Basic Characters",
+    pattern: "\\W+",
+    flags: ["g"],
+    explanation: "Matches any character that is NOT an ASCII word character (symbols, punctuation, spaces). Equivalent to [^a-zA-Z0-9_].",
+    exampleInput: "hello world! #2026",
+    expectedOutput: " (space), ! (space), #"
+  },
+  {
+    id: "cs-basic-whitespace",
+    syntax: "\\s",
+    name: "Whitespace Character",
+    category: "Basic Characters",
+    pattern: "\\s+",
+    flags: ["g"],
+    explanation: "Matches any whitespace character including spaces, tabs (\\t), line feeds (\\n), and carriage returns (\\r).",
+    exampleInput: "Regex  Lab\t2026\nToolkit",
+    expectedOutput: "  (2 spaces), \t (tab), \n (newline)"
+  },
+  {
+    id: "cs-basic-nonwhitespace",
+    syntax: "\\S",
+    name: "Non-Whitespace Character",
+    category: "Basic Characters",
+    pattern: "\\S+",
+    flags: ["g"],
+    explanation: "Matches any character that is NOT a whitespace character. Equivalent to [^\\s].",
+    exampleInput: "Alpha Beta Gamma",
+    expectedOutput: "Alpha, Beta, Gamma"
+  },
+
+  // B. Character Classes (5)
+  {
+    id: "cs-class-set",
+    syntax: "[abc]",
+    name: "Character Set",
+    category: "Character Classes",
+    pattern: "[abc]",
+    flags: ["g"],
+    explanation: "Matches any single character enclosed within the brackets ('a', 'b', or 'c').",
+    exampleInput: "cat bat dog cab",
+    expectedOutput: "c, a, b, a, c, a, b"
+  },
+  {
+    id: "cs-class-lower",
+    syntax: "[a-z]",
+    name: "Lowercase Letter Range",
+    category: "Character Classes",
+    pattern: "[a-z]+",
+    flags: ["g"],
+    explanation: "Matches any continuous sequence of lowercase letters from 'a' through 'z'.",
+    exampleInput: "CodeCraft 2026 Toolkit",
+    expectedOutput: "ode, raft, oolkit"
+  },
+  {
+    id: "cs-class-upper",
+    syntax: "[A-Z]",
+    name: "Uppercase Letter Range",
+    category: "Character Classes",
+    pattern: "[A-Z]+",
+    flags: ["g"],
+    explanation: "Matches any continuous sequence of uppercase letters from 'A' through 'Z'.",
+    exampleInput: "HyperText Markup Language (HTML)",
+    expectedOutput: "H, T, M, L, HTML"
+  },
+  {
+    id: "cs-class-digit",
+    syntax: "[0-9]",
+    name: "Digit Range",
+    category: "Character Classes",
+    pattern: "[0-9]+",
+    flags: ["g"],
+    explanation: "Matches one or more decimal digits between '0' and '9'. Equivalent to \\d+.",
+    exampleInput: "Flight UA941 landed at terminal 4.",
+    expectedOutput: "941, 4"
+  },
+  {
+    id: "cs-class-negated",
+    syntax: "[^abc]",
+    name: "Negated Character Set",
+    category: "Character Classes",
+    pattern: "[^abc]+",
+    flags: ["g"],
+    explanation: "Matches any characters that are NOT inside the set. A caret (^) at the start of brackets negates the set.",
+    exampleInput: "abracadabra",
+    expectedOutput: "r, d, r"
+  },
+
+  // C. Quantifiers (6)
+  {
+    id: "cs-quant-star",
+    syntax: "*",
+    name: "Zero or More (Greedy)",
+    category: "Quantifiers",
+    pattern: "bo*",
+    flags: ["g"],
+    explanation: "Matches the preceding item 0 or more times, matching as many characters as possible.",
+    exampleInput: "b bo boo boooo b",
+    expectedOutput: "b, bo, boo, boooo, b"
+  },
+  {
+    id: "cs-quant-plus",
+    syntax: "+",
+    name: "One or More (Greedy)",
+    category: "Quantifiers",
+    pattern: "bo+",
+    flags: ["g"],
+    explanation: "Matches the preceding item 1 or more times. Requires at least one occurrence to match.",
+    exampleInput: "b bo boo boooo b",
+    expectedOutput: "bo, boo, boooo"
+  },
+  {
+    id: "cs-quant-question",
+    syntax: "?",
+    name: "Optional (Zero or One)",
+    category: "Quantifiers",
+    pattern: "colou?r",
+    flags: ["g"],
+    explanation: "Makes the preceding item optional, matching it 0 or 1 time.",
+    exampleInput: "Both color and colour are valid spellings.",
+    expectedOutput: "color, colour"
+  },
+  {
+    id: "cs-quant-exact",
+    syntax: "{n}",
+    name: "Exactly n Times",
+    category: "Quantifiers",
+    pattern: "\\b\\d{4}\\b",
+    flags: ["g"],
+    explanation: "Matches exactly n consecutive occurrences of the preceding token or subpattern.",
+    exampleInput: "Pins: 12, 1234, 56789, 9021",
+    expectedOutput: "1234, 9021"
+  },
+  {
+    id: "cs-quant-atleast",
+    syntax: "{n,}",
+    name: "n or More Times",
+    category: "Quantifiers",
+    pattern: "\\ba{3,}\\b",
+    flags: ["g"],
+    explanation: "Matches at least n occurrences of the preceding token with no upper boundary.",
+    exampleInput: "a aa aaa aaaa aaaaa",
+    expectedOutput: "aaa, aaaa, aaaaa"
+  },
+  {
+    id: "cs-quant-range",
+    syntax: "{n,m}",
+    name: "Between n and m Times",
+    category: "Quantifiers",
+    pattern: "\\b\\d{2,4}\\b",
+    flags: ["g"],
+    explanation: "Matches between n and m occurrences (inclusive) of the preceding token.",
+    exampleInput: "Nums: 5, 42, 350, 4096, 52400",
+    expectedOutput: "42, 350, 4096"
+  },
+
+  // D. Anchors (4)
+  {
+    id: "cs-anchor-start",
+    syntax: "^",
+    name: "Start of String / Line",
+    category: "Anchors",
+    pattern: "^INFO:",
+    flags: ["m"],
+    explanation: "Asserts position at the beginning of the string (or beginning of each line when 'm' flag is set).",
+    exampleInput: "INFO: Application started\nDEBUG: Loading config\nINFO: Ready",
+    expectedOutput: "INFO: (line 1), INFO: (line 3)"
+  },
+  {
+    id: "cs-anchor-end",
+    syntax: "$",
+    name: "End of String / Line",
+    category: "Anchors",
+    pattern: "SUCCESS$",
+    flags: ["m"],
+    explanation: "Asserts position at the end of the string (or end of each line when 'm' flag is set).",
+    exampleInput: "Build 101: SUCCESS\nBuild 102: FAILED\nBuild 103: SUCCESS",
+    expectedOutput: "SUCCESS (line 1), SUCCESS (line 3)"
+  },
+  {
+    id: "cs-anchor-word-boundary",
+    syntax: "\\b",
+    name: "Word Boundary",
+    category: "Anchors",
+    pattern: "\\bcat\\b",
+    flags: ["g"],
+    explanation: "Matches a zero-width word boundary between a word character (\\w) and a non-word character.",
+    exampleInput: "cat category catalog bobcat copycat cat",
+    expectedOutput: "cat (1st), cat (last)"
+  },
+  {
+    id: "cs-anchor-nonword-boundary",
+    syntax: "\\B",
+    name: "Non-Word Boundary",
+    category: "Anchors",
+    pattern: "\\Benter\\B",
+    flags: ["g"],
+    explanation: "Matches a zero-width position that is NOT at a word boundary (embedded inside a word).",
+    exampleInput: "center entering entertainers reentry",
+    expectedOutput: "enter (in 'center'), enter (in 'entertainers'), enter (in 'reentry')"
+  },
+
+  // E. Groups (4)
+  {
+    id: "cs-group-capturing",
+    syntax: "(abc)",
+    name: "Capturing Group",
+    category: "Groups",
+    pattern: "(\\w+)@(\\w+\\.[a-z]{2,})",
+    flags: ["g"],
+    explanation: "Groups tokens together and remembers the matched text in numbered groups ($1, $2).",
+    exampleInput: "Contact dev@example.com for info",
+    expectedOutput: "dev@example.com ($1: dev, $2: example.com)"
+  },
+  {
+    id: "cs-group-noncapturing",
+    syntax: "(?:abc)",
+    name: "Non-Capturing Group",
+    category: "Groups",
+    pattern: "(?:https|http):\\/\\/(\\w+\\.[a-z]{2,})",
+    flags: ["g"],
+    explanation: "Groups sub-expressions for alternation or quantifiers without allocating capture group memory.",
+    exampleInput: "https://google.com and http://github.com",
+    expectedOutput: "https://google.com ($1: google.com), http://github.com ($1: github.com)"
+  },
+  {
+    id: "cs-group-named",
+    syntax: "(?<name>abc)",
+    name: "Named Capturing Group",
+    category: "Groups",
+    pattern: "(?<year>\\d{4})-(?<month>\\d{2})-(?<day>\\d{2})",
+    flags: ["g"],
+    explanation: "Captures the matched substring under a descriptive name accessible via groups[name].",
+    exampleInput: "Release: 2026-11-15",
+    expectedOutput: "<year>: 2026, <month>: 11, <day>: 15"
+  },
+  {
+    id: "cs-group-alternation",
+    syntax: "a|b",
+    name: "Alternation (OR)",
+    category: "Groups",
+    pattern: "\\b(cat|dog|bird)\\b",
+    flags: ["g"],
+    explanation: "Matches either the expression to the left or the expression to the right of the vertical bar.",
+    exampleInput: "We have a cat, a fish, and a dog.",
+    expectedOutput: "cat, dog"
+  },
+
+  // F. Lookarounds (4)
+  {
+    id: "cs-lookaround-pos-ahead",
+    syntax: "(?=abc)",
+    name: "Positive Lookahead",
+    category: "Lookarounds",
+    pattern: "\\d+(?=px)",
+    flags: ["g"],
+    explanation: "Asserts that the subpattern matches immediately ahead without including it in the final match.",
+    exampleInput: "width: 1920px; height: 1080px; count: 42;",
+    expectedOutput: "1920, 1080"
+  },
+  {
+    id: "cs-lookaround-neg-ahead",
+    syntax: "(?!abc)",
+    name: "Negative Lookahead",
+    category: "Lookarounds",
+    pattern: "\\b\\w+\\.(?!png|jpg)\\w+\\b",
+    flags: ["g"],
+    explanation: "Asserts that the specified subpattern does NOT follow immediately ahead.",
+    exampleInput: "index.html script.js logo.png avatar.jpg style.css",
+    expectedOutput: "index.html, script.js, style.css"
+  },
+  {
+    id: "cs-lookaround-pos-behind",
+    syntax: "(?<=abc)",
+    name: "Positive Lookbehind",
+    category: "Lookarounds",
+    pattern: "(?<=\\$)\\d+",
+    flags: ["g"],
+    explanation: "Asserts that the subpattern matches immediately behind without including it in the match.",
+    exampleInput: "Order cost: $150, discount: €20, fee: $15",
+    expectedOutput: "150, 15"
+  },
+  {
+    id: "cs-lookaround-neg-behind",
+    syntax: "(?<!abc)",
+    name: "Negative Lookbehind",
+    category: "Lookarounds",
+    pattern: "(?<!\\$)\\b\\d+\\b",
+    flags: ["g"],
+    explanation: "Asserts that the specified subpattern does NOT match immediately behind.",
+    exampleInput: "$99 items total: 42 shipped, 10 pending",
+    expectedOutput: "42, 10"
+  },
+
+  // G. Flags (5)
+  {
+    id: "cs-flag-g",
+    syntax: "g",
+    name: "Global Search Flag",
+    category: "Flags",
+    pattern: "\\b\\w{4}\\b",
+    flags: ["g"],
+    explanation: "Searches for all occurrences across the entire input string rather than stopping at the first match.",
+    exampleInput: "blue ruby code star beta",
+    expectedOutput: "blue, ruby, code, star, beta (all 5 words)"
+  },
+  {
+    id: "cs-flag-i",
+    syntax: "i",
+    name: "Case-Insensitive Flag",
+    category: "Flags",
+    pattern: "javascript",
+    flags: ["g", "i"],
+    explanation: "Treats uppercase and lowercase characters as equivalent during pattern matching.",
+    exampleInput: "JavaScript, javascript, and JAVASCRIPT",
+    expectedOutput: "JavaScript, javascript, JAVASCRIPT"
+  },
+  {
+    id: "cs-flag-m",
+    syntax: "m",
+    name: "Multiline Mode Flag",
+    category: "Flags",
+    pattern: "^#\\s.*$",
+    flags: ["g", "m"],
+    explanation: "Allows ^ and $ anchors to match at the beginning and end of each line (separated by \\n).",
+    exampleInput: "# Heading 1\nParagraph text\n# Heading 2",
+    expectedOutput: "# Heading 1, # Heading 2"
+  },
+  {
+    id: "cs-flag-s",
+    syntax: "s",
+    name: "DotAll Mode Flag (Single-line)",
+    category: "Flags",
+    pattern: "<article>.*?</article>",
+    flags: ["g", "s"],
+    explanation: "Enables the dot (.) wildcard to match newline characters (\\n, \\r) as well.",
+    exampleInput: "<article>\n  <h2>Title</h2>\n</article>",
+    expectedOutput: "<article>\n  <h2>Title</h2>\n</article>"
+  },
+  {
+    id: "cs-flag-u",
+    syntax: "u",
+    name: "Unicode Mode Flag",
+    category: "Flags",
+    pattern: "\\p{Extended_Pictographic}+",
+    flags: ["g", "u"],
+    explanation: "Enables full Unicode character properties, astral plane surrogate handling, and emoji matching.",
+    exampleInput: "Hello 🚀 World 💡 2026 🔥",
+    expectedOutput: "🚀, 💡, 🔥"
+  },
+
+  // H. Common Examples (8)
+  {
+    id: "cs-example-numbers",
+    syntax: "\\b\\d+(?:\\.\\d+)?\\b",
+    name: "Numbers (Integer & Decimal)",
+    category: "Common Examples",
+    pattern: "\\b\\d+(?:\\.\\d+)?\\b",
+    flags: ["g"],
+    explanation: "Matches standalone integer or decimal numbers with optional fractional parts.",
+    exampleInput: "Prices: 42, 3.14, 0.007, and 999 items",
+    expectedOutput: "42, 3.14, 0.007, 999"
+  },
+  {
+    id: "cs-example-email",
+    syntax: "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
+    name: "Email Address",
+    category: "Common Examples",
+    pattern: "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
+    flags: ["g"],
+    explanation: "Standard pattern matching email usernames, domain names, and top-level domain extensions.",
+    exampleInput: "Reach team@regexlab.dev or contact@domain.co.uk",
+    expectedOutput: "team@regexlab.dev, contact@domain.co.uk"
+  },
+  {
+    id: "cs-example-indian-mobile",
+    syntax: "(?:\\+91|0)?[6-9]\\d{9}",
+    name: "Indian Mobile Number",
+    category: "Common Examples",
+    pattern: "(?:\\+91|0)?[6-9]\\d{9}",
+    flags: ["g"],
+    explanation: "Matches standard 10-digit Indian cell numbers starting with 6-9, with optional +91 or 0 prefix.",
+    exampleInput: "Call +919876543210, 09123456789, or 8888877777",
+    expectedOutput: "+919876543210, 09123456789, 8888877777"
+  },
+  {
+    id: "cs-example-password",
+    syntax: "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
+    name: "Strong Password Validation",
+    category: "Common Examples",
+    pattern: "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",
+    flags: ["m"],
+    explanation: "Enforces at least 8 characters with lowercase, uppercase, numeric digit, and special symbol requirements.",
+    exampleInput: "P@ssw0rd2026!",
+    expectedOutput: "P@ssw0rd2026! (Valid)"
+  },
+  {
+    id: "cs-example-date",
+    syntax: "\\b\\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\\d|3[01])\\b",
+    name: "Date Format (YYYY-MM-DD)",
+    category: "Common Examples",
+    pattern: "\\b\\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\\d|3[01])\\b",
+    flags: ["g"],
+    explanation: "Matches ISO 8601 calendar dates with valid 2-digit months (01-12) and days (01-31).",
+    exampleInput: "Dates: 2026-11-15, 2026-13-45 (invalid), 2027-01-01",
+    expectedOutput: "2026-11-15, 2027-01-01"
+  },
+  {
+    id: "cs-example-url",
+    syntax: "https?:\\/\\/[^\\s/$.?#].[^\\s]*",
+    name: "Web URL (HTTP / HTTPS)",
+    category: "Common Examples",
+    pattern: "https?:\\/\\/[^\\s/$.?#].[^\\s]*",
+    flags: ["g"],
+    explanation: "Matches web URLs starting with http:// or https:// with valid address and query strings.",
+    exampleInput: "Docs at https://regexlab.dev/docs and http://localhost:8080",
+    expectedOutput: "https://regexlab.dev/docs, http://localhost:8080"
+  },
+  {
+    id: "cs-example-uppercase-words",
+    syntax: "\\b[A-Z]{2,}\\b",
+    name: "Uppercase Words & Acronyms",
+    category: "Common Examples",
+    pattern: "\\b[A-Z]{2,}\\b",
+    flags: ["g"],
+    explanation: "Finds words made entirely of two or more capital letters (acronyms, country codes, constants).",
+    exampleInput: "The NASA and ESA launched a new AI satellite.",
+    expectedOutput: "NASA, ESA, AI"
+  },
+  {
+    id: "cs-example-whitespace-trim",
+    syntax: "^\\s+|\\s+$",
+    name: "Whitespace Removal / Trim",
+    category: "Common Examples",
+    pattern: "^\\s+|\\s+$",
+    flags: ["g", "m"],
+    explanation: "Matches leading or trailing whitespace at line boundaries to perform string trimming.",
+    exampleInput: "   Clean me up   ",
+    expectedOutput: "Leading '   ' and trailing '   '"
+  }
+];
+
 if (typeof document !== "undefined") {
   document.addEventListener("DOMContentLoaded", () => {
     // Top-level app status elements
@@ -756,7 +1252,7 @@ if (typeof document !== "undefined") {
     // Pattern Library elements
     const librarySearchInput = document.getElementById("library-search");
     const btnClearSearch = document.getElementById("btn-clear-search");
-    const categoryChips = document.querySelectorAll(".category-chip");
+    const categoryChips = document.querySelectorAll("#category-filters .category-chip");
     const patternCardsGrid = document.getElementById("pattern-cards-grid");
     const libraryCountPill = document.getElementById("library-count-pill");
     const toastContainer = document.getElementById("toast-container");
@@ -775,9 +1271,19 @@ if (typeof document !== "undefined") {
     const btnCopyCodeInline = document.getElementById("btn-copy-code-inline");
     const btnClearGenerator = document.getElementById("btn-clear-generator");
 
+    // Cheat Sheet elements (Day 5)
+    const cheatsheetSearchInput = document.getElementById("cheatsheet-search");
+    const btnClearCheatsheetSearch = document.getElementById("btn-clear-cheatsheet-search");
+    const cheatCategoryChips = document.querySelectorAll("#cheatsheet-category-filters .cheat-category-chip");
+    const cheatsheetCardsGrid = document.getElementById("cheatsheet-cards-grid");
+    const cheatsheetCountPill = document.getElementById("cheatsheet-count-pill");
+    const mistakeTestButtons = document.querySelectorAll(".js-test-mistake");
+
     let activeCategory = "All";
     let searchQuery = "";
     let currentGeneratorLang = "javascript";
+    let activeCheatCategory = "All";
+    let cheatSearchQuery = "";
 
     // 1. Update status indicators to confirm Vanilla JS loaded cleanly
     if (statusBadge && statusLabel) {
@@ -786,7 +1292,7 @@ if (typeof document !== "undefined") {
     }
 
     if (verifyValue) {
-      verifyValue.textContent = "JS Verified (Day 4)";
+      verifyValue.textContent = "JS Verified (Day 5)";
     }
 
     // 2. Navigation link active state
@@ -1409,14 +1915,293 @@ if (typeof document !== "undefined") {
       showToast("Cleared code generator inputs.", "🧹");
     });
 
-    // Initial render of Live Regex Tester, Pattern Library and Code Generator
+    // 9. Day 5: Interactive Regex Cheat Sheet rendering, search & filtering
+    function getFilteredCheatSheetItems() {
+      const q = cheatSearchQuery.trim().toLowerCase();
+
+      return CHEATSHEET_ITEMS.filter((item) => {
+        const matchesCategory =
+          activeCheatCategory === "All" || item.category === activeCheatCategory;
+
+        const matchesQuery =
+          !q ||
+          item.syntax.toLowerCase().includes(q) ||
+          item.name.toLowerCase().includes(q) ||
+          item.explanation.toLowerCase().includes(q) ||
+          item.category.toLowerCase().includes(q) ||
+          item.exampleInput.toLowerCase().includes(q) ||
+          item.expectedOutput.toLowerCase().includes(q);
+
+        return matchesCategory && matchesQuery;
+      });
+    }
+
+    function renderCheatSheetCards() {
+      if (!cheatsheetCardsGrid) {
+        return;
+      }
+
+      const filtered = getFilteredCheatSheetItems();
+
+      // Update count pill
+      if (cheatsheetCountPill) {
+        if (filtered.length === CHEATSHEET_ITEMS.length) {
+          cheatsheetCountPill.textContent = `Showing all ${filtered.length} reference items`;
+        } else if (filtered.length === 0) {
+          cheatsheetCountPill.textContent = "0 reference items found";
+        } else {
+          cheatsheetCountPill.textContent = `Showing ${filtered.length} of ${CHEATSHEET_ITEMS.length} reference items`;
+        }
+      }
+
+      // Show empty state if no cheat items match
+      if (filtered.length === 0) {
+        cheatsheetCardsGrid.innerHTML = `
+          <div class="pattern-empty-state" style="grid-column: 1 / -1;">
+            <span class="empty-icon" aria-hidden="true">🔍</span>
+            <h3 class="empty-title">No reference items found</h3>
+            <p class="empty-desc">
+              No regex reference items match your current search "${escapeHtml(cheatSearchQuery)}" or selected category "${escapeHtml(activeCheatCategory)}".
+            </p>
+            <button type="button" class="btn btn-accent" id="btn-reset-cheat-filters">Reset Filters</button>
+          </div>
+        `;
+
+        document.getElementById("btn-reset-cheat-filters")?.addEventListener("click", () => {
+          activeCheatCategory = "All";
+          cheatSearchQuery = "";
+          if (cheatsheetSearchInput) cheatsheetSearchInput.value = "";
+          if (btnClearCheatsheetSearch) btnClearCheatsheetSearch.hidden = true;
+          cheatCategoryChips.forEach((chip) => {
+            chip.classList.toggle("is-active", chip.dataset.category === "All");
+          });
+          renderCheatSheetCards();
+          cheatsheetSearchInput?.focus();
+        });
+        return;
+      }
+
+      // Render cheat cards
+      cheatsheetCardsGrid.innerHTML = filtered
+        .map((item) => {
+          return `
+            <article class="cheat-card glass-card" data-id="${escapeHtml(item.id)}">
+              <div class="cheat-card-header">
+                <div class="cheat-card-title-wrap">
+                  <code class="cheat-syntax">${escapeHtml(item.syntax)}</code>
+                  <h3 class="cheat-name">${escapeHtml(item.name)}</h3>
+                </div>
+                <span class="category-badge">${escapeHtml(item.category)}</span>
+              </div>
+
+              <p class="cheat-desc">${escapeHtml(item.explanation)}</p>
+
+              <div class="cheat-example-box">
+                <span class="meta-box-label">Example Input</span>
+                <span class="meta-box-val">${escapeHtml(item.exampleInput)}</span>
+              </div>
+
+              <div class="cheat-expected-box">
+                <span class="meta-box-label">Expected Match</span>
+                <span class="meta-box-val highlight">${escapeHtml(item.expectedOutput)}</span>
+              </div>
+
+              <div class="cheat-card-actions">
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-copy-cheat"
+                  data-id="${escapeHtml(item.id)}"
+                  title="Copy syntax or pattern to clipboard"
+                >
+                  📋 Copy
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-ghost btn-codegen-cheat"
+                  data-id="${escapeHtml(item.id)}"
+                  title="Generate code for this pattern"
+                >
+                  💻 Code
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-accent btn-test-cheat"
+                  data-id="${escapeHtml(item.id)}"
+                  title="Try pattern in Live Regex Tester"
+                >
+                  ⚡ Try in Tester
+                </button>
+              </div>
+            </article>
+          `;
+        })
+        .join("");
+    }
+
+    // Connect Cheat Card Actions (Copy, Code & Test)
+    cheatsheetCardsGrid?.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) {
+        return;
+      }
+
+      // Action 1: Copy Syntax / Pattern
+      const copyBtn = target.closest(".btn-copy-cheat");
+      if (copyBtn) {
+        const cheatId = copyBtn.getAttribute("data-id");
+        const cheatItem = CHEATSHEET_ITEMS.find((c) => c.id === cheatId);
+        if (!cheatItem) return;
+
+        copyToClipboard(cheatItem.syntax, () => {
+          const originalText = copyBtn.innerHTML;
+          copyBtn.classList.add("is-copied");
+          copyBtn.textContent = "✓ Copied!";
+
+          window.setTimeout(() => {
+            copyBtn.classList.remove("is-copied");
+            copyBtn.innerHTML = originalText;
+          }, 1800);
+
+          showToast(`Copied "${cheatItem.syntax}" to clipboard!`, "📋");
+        });
+        return;
+      }
+
+      // Action 2: Code Generator integration
+      const codegenBtn = target.closest(".btn-codegen-cheat");
+      if (codegenBtn) {
+        const cheatId = codegenBtn.getAttribute("data-id");
+        const cheatItem = CHEATSHEET_ITEMS.find((c) => c.id === cheatId);
+        if (!cheatItem || !generatorPatternInput) return;
+
+        generatorPatternInput.value = cheatItem.pattern || cheatItem.syntax;
+        if (generatorFlagsInput) generatorFlagsInput.value = (cheatItem.flags || []).join("");
+        if (generatorSampleTextInput) generatorSampleTextInput.value = cheatItem.exampleInput;
+
+        generateCode();
+
+        const generatorElement = document.getElementById("generator");
+        if (generatorElement) {
+          generatorElement.scrollIntoView({ behavior: "smooth" });
+        }
+
+        navLinks.forEach((nav) => {
+          if (nav.getAttribute("href") === "#generator") {
+            navLinks.forEach((item) => item.classList.remove("active"));
+            nav.classList.add("active");
+          }
+        });
+
+        showToast(`Loaded "${cheatItem.name}" into Code Generator!`, "💻");
+        generatorPatternInput.focus();
+        return;
+      }
+
+      // Action 3: Try in Live Regex Tester
+      const testBtn = target.closest(".btn-test-cheat");
+      if (testBtn) {
+        const cheatId = testBtn.getAttribute("data-id");
+        const cheatItem = CHEATSHEET_ITEMS.find((c) => c.id === cheatId);
+        if (!cheatItem || !patternInput || !testStringInput) return;
+
+        patternInput.value = cheatItem.pattern || cheatItem.syntax;
+        testStringInput.value = cheatItem.exampleInput;
+
+        flagCheckboxes.forEach((cb) => {
+          cb.checked = (cheatItem.flags || []).includes(cb.value);
+        });
+
+        evaluateRegex();
+
+        const testerElement = document.getElementById("tester");
+        if (testerElement) {
+          testerElement.scrollIntoView({ behavior: "smooth" });
+        }
+
+        navLinks.forEach((nav) => {
+          if (nav.getAttribute("href") === "#tester") {
+            navLinks.forEach((item) => item.classList.remove("active"));
+            nav.classList.add("active");
+          }
+        });
+
+        showToast(`Loaded "${cheatItem.name}" into Live Regex Tester!`, "⚡");
+        patternInput.focus();
+      }
+    });
+
+    // Cheat Sheet Category filter buttons
+    cheatCategoryChips.forEach((chip) => {
+      chip.addEventListener("click", () => {
+        cheatCategoryChips.forEach((c) => c.classList.remove("is-active"));
+        chip.classList.add("is-active");
+        activeCheatCategory = chip.dataset.category || "All";
+        renderCheatSheetCards();
+      });
+    });
+
+    // Cheat Sheet Search input live filtering
+    cheatsheetSearchInput?.addEventListener("input", (e) => {
+      cheatSearchQuery = e.target.value;
+      if (btnClearCheatsheetSearch) {
+        btnClearCheatsheetSearch.hidden = cheatSearchQuery.length === 0;
+      }
+      renderCheatSheetCards();
+    });
+
+    // Cheat Sheet Clear search button
+    btnClearCheatsheetSearch?.addEventListener("click", () => {
+      cheatSearchQuery = "";
+      if (cheatsheetSearchInput) {
+        cheatsheetSearchInput.value = "";
+        cheatsheetSearchInput.focus();
+      }
+      btnClearCheatsheetSearch.hidden = true;
+      renderCheatSheetCards();
+    });
+
+    // 10. Common Mistakes "Try Correct in Tester" click handlers
+    mistakeTestButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const pattern = btn.getAttribute("data-pattern") || "";
+        const text = btn.getAttribute("data-text") || "";
+        const flagsStr = btn.getAttribute("data-flags") || "";
+
+        if (patternInput) patternInput.value = pattern;
+        if (testStringInput) testStringInput.value = text;
+
+        flagCheckboxes.forEach((cb) => {
+          cb.checked = flagsStr.includes(cb.value);
+        });
+
+        evaluateRegex();
+
+        const testerElement = document.getElementById("tester");
+        if (testerElement) {
+          testerElement.scrollIntoView({ behavior: "smooth" });
+        }
+
+        navLinks.forEach((nav) => {
+          if (nav.getAttribute("href") === "#tester") {
+            navLinks.forEach((item) => item.classList.remove("active"));
+            nav.classList.add("active");
+          }
+        });
+
+        showToast("Loaded common mistake test case into Tester!", "⚡");
+        patternInput?.focus();
+      });
+    });
+
+    // Initial render of Live Regex Tester, Pattern Library, Code Generator and Cheat Sheet
     evaluateRegex();
     renderPatternCards();
     generateCode();
+    renderCheatSheetCards();
 
     // Console verification message
     console.info(
-      "%cRegex Lab – Developer Toolkit%c initialized successfully (Day 4 · Regex Code Generator).",
+      "%cRegex Lab – Developer Toolkit%c initialized successfully (Day 5 · Interactive Regex Cheat Sheet).",
       "color: #a855f7; font-weight: bold;",
       "color: #93c5fd;"
     );
@@ -1429,6 +2214,7 @@ if (typeof module !== "undefined" && module.exports) {
     collectMatches,
     buildHighlightedHtml,
     PATTERN_LIBRARY,
+    CHEATSHEET_ITEMS,
     generateJavaScriptCode,
     generatePythonCode,
     generatePhpCode,
