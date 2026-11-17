@@ -47,6 +47,7 @@
         <a href="#library" class="nav-link">Pattern Library</a>
         <a href="#generator" class="nav-link">Code Generator</a>
         <a href="#cheatsheet" class="nav-link">Cheat Sheet</a>
+        <a href="#playground" class="nav-link">Advanced Playground</a>
         <a href="#tools" class="nav-link">Planned Tools</a>
         <a href="#roadmap" class="nav-link">Roadmap</a>
       </nav>
@@ -64,8 +65,8 @@
     <section id="dashboard" class="container dashboard-hero">
       <div class="hero-card glass-card">
         <div class="hero-badge">
-          <span class="mono-tag">Day 5 / 7</span>
-          <span>Interactive Regex Cheat Sheet</span>
+          <span class="mono-tag">Day 6 / 7</span>
+          <span>Advanced Regex Playground</span>
         </div>
 
         <h1 class="hero-title">Regex Lab</h1>
@@ -87,7 +88,7 @@
           </div>
           <div class="meta-pill">
             <span class="meta-label">Current Phase</span>
-            <span class="meta-value">Day 5 · Cheat Sheet Active</span>
+            <span class="meta-value">Day 6 · Advanced Playground Active</span>
           </div>
         </div>
       </div>
@@ -560,6 +561,215 @@
       </div>
     </section>
 
+    <!-- Day 6: Advanced Regex Playground Module -->
+    <section id="playground" class="container playground-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Advanced Regex Playground</h2>
+          <p class="section-subtitle">
+            Interactive workbench to experiment with expressions, inspect capture groups, debug patterns, and preview live replacements.
+          </p>
+        </div>
+        <span class="section-pill" id="playground-stats-pill">0 matches · 0 ms</span>
+      </div>
+
+      <!-- Playground Control Toolbar -->
+      <div class="playground-toolbar glass-card">
+        <div class="toolbar-left">
+          <label for="playground-example-select" class="toolbar-label">Load Example:</label>
+          <select id="playground-example-select" class="sample-select" aria-label="Load ready-made regex example">
+            <option value="" disabled selected>Select ready-made pattern...</option>
+            <option value="numbers">Numbers: \d+</option>
+            <option value="email">Email: RFC Standard</option>
+            <option value="indian-mobile">Indian Mobile: +91 / 0 Prefix</option>
+            <option value="date">Date: YYYY-MM-DD</option>
+            <option value="html-tags">HTML Tags: &lt;tag&gt;...&lt;/tag&gt;</option>
+          </select>
+          <button type="button" id="btn-load-playground-example" class="btn btn-ghost btn-sm" title="Load selected example pattern">Load</button>
+        </div>
+
+        <div class="toolbar-right">
+          <button type="button" id="btn-copy-playground-pattern" class="btn btn-ghost btn-sm" title="Copy regular expression pattern">📋 Copy Pattern</button>
+          <button type="button" id="btn-copy-playground-results" class="btn btn-ghost btn-sm" title="Copy match stats &amp; group results">📋 Copy Results</button>
+          <button type="button" id="btn-reset-playground" class="btn btn-ghost btn-sm" title="Reset playground to default state">🔄 Reset</button>
+          <button type="button" id="btn-clear-playground" class="btn btn-ghost btn-sm" title="Clear pattern and sample text">🧹 Clear</button>
+        </div>
+      </div>
+
+      <!-- Main Playground Shell -->
+      <div class="glass-card playground-shell">
+        <!-- Pattern & Flags Editor -->
+        <div class="editor-row">
+          <div class="pattern-input-group">
+            <span class="regex-delimiter">/</span>
+            <input
+              type="text"
+              id="playground-pattern"
+              class="regex-input"
+              value="\d+"
+              placeholder="Enter advanced regex pattern..."
+              spellcheck="false"
+              autocomplete="off"
+            />
+            <span class="regex-delimiter">/</span>
+            <span class="flags-preview" id="playground-flags-preview" title="Active flags">g</span>
+          </div>
+
+          <div class="flags-group" role="group" aria-label="Playground Regex Flags">
+            <span class="flags-label">Flags:</span>
+            <label class="flag-toggle">
+              <input type="checkbox" class="playground-flag-checkbox" value="g" checked />
+              <span class="flag-pill">g <span class="flag-desc">global</span></span>
+            </label>
+            <label class="flag-toggle">
+              <input type="checkbox" class="playground-flag-checkbox" value="i" />
+              <span class="flag-pill">i <span class="flag-desc">insensitive</span></span>
+            </label>
+            <label class="flag-toggle">
+              <input type="checkbox" class="playground-flag-checkbox" value="m" />
+              <span class="flag-pill">m <span class="flag-desc">multiline</span></span>
+            </label>
+            <label class="flag-toggle">
+              <input type="checkbox" class="playground-flag-checkbox" value="s" />
+              <span class="flag-pill">s <span class="flag-desc">dotAll</span></span>
+            </label>
+            <label class="flag-toggle">
+              <input type="checkbox" class="playground-flag-checkbox" value="u" />
+              <span class="flag-pill">u <span class="flag-desc">unicode</span></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Error Banner -->
+        <div class="error-banner" id="playground-error-banner" role="alert" hidden></div>
+
+        <!-- Two-Column Workbench Layout -->
+        <div class="playground-workbench-grid">
+          <!-- Left Column: Sample Text & Replacement Playground -->
+          <div class="playground-col-left">
+            <!-- Sample Text Input & Highlight Display -->
+            <div class="text-editor-panel glass-card">
+              <div class="panel-header">
+                <label for="playground-sample-text" class="panel-title">Sample Test Text</label>
+                <span class="panel-meta" id="playground-text-meta">32 characters</span>
+              </div>
+              <div class="highlight-wrapper">
+                <div class="highlight-backdrop" aria-hidden="true">
+                  <div class="highlight-output" id="playground-highlight-output"></div>
+                </div>
+                <textarea
+                  id="playground-sample-text"
+                  class="test-string-input"
+                  placeholder="Paste or type sample text here..."
+                  spellcheck="false"
+                  rows="6"
+                >Orders: 42, 108, and 999 items.</textarea>
+              </div>
+            </div>
+
+            <!-- Replacement Playground (Requirement 5) -->
+            <div class="replacement-panel glass-card">
+              <div class="panel-header">
+                <div class="replacement-title-wrap">
+                  <span class="replacement-icon" aria-hidden="true">⇄</span>
+                  <label for="playground-replacement-pattern" class="panel-title">Live Text Replacement</label>
+                </div>
+                <span class="panel-meta" id="playground-replacement-count">0 replacements</span>
+              </div>
+
+              <div class="replacement-input-row">
+                <input
+                  type="text"
+                  id="playground-replacement-pattern"
+                  class="replacement-input"
+                  value="[$&amp;]"
+                  placeholder="e.g. [$1], [$2-$1], ***, REDACTED"
+                  spellcheck="false"
+                />
+                <button type="button" id="btn-copy-replacement" class="btn btn-ghost btn-sm" title="Copy replacement result to clipboard">📋 Copy Result</button>
+              </div>
+
+              <!-- Replacement Token Helper Pills -->
+              <div class="replacement-helpers">
+                <span class="helpers-label">Insert:</span>
+                <button type="button" class="btn-token-insert" data-token="$&amp;" title="Inserts matched substring"><code>$&amp;</code> (match)</button>
+                <button type="button" class="btn-token-insert" data-token="$1" title="Inserts capture group 1"><code>$1</code> (group 1)</button>
+                <button type="button" class="btn-token-insert" data-token="$2" title="Inserts capture group 2"><code>$2</code> (group 2)</button>
+                <button type="button" class="btn-token-insert" data-token="$&lt;name&gt;" title="Inserts named capture group"><code>$&lt;name&gt;</code></button>
+                <button type="button" class="btn-token-insert" data-token="$`" title="Inserts text preceding match"><code>$`</code> (before)</button>
+                <button type="button" class="btn-token-insert" data-token="$'" title="Inserts text following match"><code>$'</code> (after)</button>
+                <button type="button" class="btn-token-insert" data-token="$$" title="Inserts a literal $ sign"><code>$$</code> ($)</button>
+              </div>
+
+              <!-- Unsupported Replacement Syntax Warning / Notice -->
+              <div class="replacement-syntax-note" id="playground-replacement-note" hidden></div>
+
+              <!-- Live Replacement Output Box -->
+              <div class="replacement-output-wrap">
+                <div class="output-box-label">Replacement Result Preview:</div>
+                <pre class="replacement-output" id="playground-replacement-output"></pre>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Match Statistics, Capture Groups, & Explanation -->
+          <div class="playground-col-right">
+            <!-- Match Statistics Dashboard (Requirement 6) -->
+            <div class="stats-panel glass-card">
+              <div class="panel-header">
+                <span class="panel-title">📊 Match Statistics</span>
+                <span class="panel-meta" id="stat-status-badge">Ready</span>
+              </div>
+              <div class="stats-grid">
+                <div class="stat-card">
+                  <span class="stat-label">Total Matches</span>
+                  <span class="stat-value" id="stat-total-matches">0</span>
+                </div>
+                <div class="stat-card">
+                  <span class="stat-label">Unique Values</span>
+                  <span class="stat-value" id="stat-unique-matches">0</span>
+                </div>
+                <div class="stat-card">
+                  <span class="stat-label">Indices (Range)</span>
+                  <span class="stat-value stat-small" id="stat-positions">None</span>
+                </div>
+                <div class="stat-card">
+                  <span class="stat-label">Match Lengths</span>
+                  <span class="stat-value stat-small" id="stat-lengths">None</span>
+                </div>
+                <div class="stat-card stat-full">
+                  <span class="stat-label">Execution Time</span>
+                  <span class="stat-value stat-accent" id="stat-exec-time">&lt; 0.1 ms</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Capture Group Inspector (Requirement 3) -->
+            <div class="inspector-panel glass-card">
+              <div class="panel-header">
+                <span class="panel-title">🔍 Capture Group Inspector</span>
+                <span class="panel-meta" id="playground-group-count">0 groups</span>
+              </div>
+              <div class="inspector-matches-list" id="playground-groups-inspector" aria-live="polite">
+                <!-- Dynamically populated matches -->
+              </div>
+            </div>
+
+            <!-- Regex Explanation Panel (Requirement 4) -->
+            <div class="explanation-panel glass-card">
+              <div class="panel-header">
+                <span class="panel-title">💡 Plain-English Regex Explanation</span>
+                <span class="panel-meta" id="playground-explanation-mode">Token Breakdown</span>
+              </div>
+              <div class="explanation-content" id="playground-explanation-content">
+                <!-- Dynamically parsed explanation -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Toolkit Modules Overview -->
     <section id="tools" class="container tools-section">
       <div class="section-header">
@@ -569,7 +779,7 @@
             Developer utilities scheduled across the 7-day build.
           </p>
         </div>
-        <span class="section-pill" id="module-feedback">4 active · 2 planned</span>
+        <span class="section-pill" id="module-feedback">5 active · 1 planned</span>
       </div>
 
       <div class="tools-grid">
@@ -629,17 +839,17 @@
           </div>
         </article>
 
-        <article class="tool-card glass-card" tabindex="0" data-tool="Match & Replace">
+        <article class="tool-card glass-card is-active-module" tabindex="0" data-tool="Advanced Playground" data-href="#playground">
           <div class="tool-card-top">
             <span class="tool-icon" aria-hidden="true">⇄</span>
-            <span class="tool-badge">Planned · Day 6</span>
+            <span class="tool-badge badge-active">Active · Day 6</span>
           </div>
-          <h3 class="tool-title">Match &amp; Replace</h3>
+          <h3 class="tool-title">Advanced Playground</h3>
           <p class="tool-description">
-            Interactive substitution sandbox to preview replacements using backreferences and tokens.
+            Advanced workbench with capture group inspector, replacement preview, statistics, and explanation.
           </p>
           <div class="tool-footer">
-            <span class="tool-status">Placeholder module</span>
+            <span class="tool-status">Ready above ↑</span>
           </div>
         </article>
 
@@ -672,7 +882,8 @@
           <li class="checklist-item done">Day 3: Regex Pattern Library, search, copy &amp; tester integration</li>
           <li class="checklist-item done">Day 4: Regex Code Generator for JavaScript, Python, PHP &amp; Java</li>
           <li class="checklist-item done">Day 5: Interactive Regex Cheat Sheet &amp; Common Mistakes guide</li>
-          <li class="checklist-item pending">Days 6–7: Replace, Explainer &amp; Storage</li>
+          <li class="checklist-item done">Day 6: Advanced Regex Playground, group inspector, replace &amp; explainer</li>
+          <li class="checklist-item pending">Day 7: Saved Snippets &amp; Test Cases</li>
         </ul>
       </div>
     </section>
@@ -688,7 +899,7 @@
         <strong>Regex Lab</strong> · Modern Developer Toolkit
       </p>
       <p class="footer-meta">
-        Day 5 Build · HTML5, CSS3 &amp; Vanilla JavaScript
+        Day 6 Build · HTML5, CSS3 &amp; Vanilla JavaScript
       </p>
     </div>
   </footer>

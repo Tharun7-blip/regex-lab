@@ -345,6 +345,7 @@ function escapeHtml(value) {
 function formatMatchRecord(match) {
   const start = match.index;
   const end = start + match[0].length;
+  const length = match[0].length;
   const numberedGroups = match.slice(1);
   const namedGroups = match.groups ? { ...match.groups } : null;
 
@@ -352,6 +353,7 @@ function formatMatchRecord(match) {
     text: match[0],
     start,
     end,
+    length,
     numberedGroups,
     namedGroups
   };
@@ -1224,6 +1226,424 @@ const CHEATSHEET_ITEMS = [
   }
 ];
 
+/**
+ * ============================================================================
+ * Day 6: Advanced Regex Playground Presets & Educational Explainer
+ * ============================================================================
+ */
+const PLAYGROUND_EXAMPLES = {
+  numbers: {
+    name: "Numbers: \\d+",
+    pattern: "\\d+",
+    flags: ["g"],
+    sampleText: "Orders: 42, 108, and 999 items.",
+    replacement: "[$&]"
+  },
+  email: {
+    name: "Email: RFC Standard",
+    pattern: "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
+    flags: ["g"],
+    sampleText: "Contact support@regexlab.dev or team@google.com.",
+    replacement: "[REDACTED_EMAIL]"
+  },
+  "indian-mobile": {
+    name: "Indian Mobile: +91 / 0 Prefix",
+    pattern: "^(?:\\+91[- ]?)?[6-9]\\d{9}$",
+    flags: ["m"],
+    sampleText: "+91-9876543210\n09876543210\n9876543210\n1234567890",
+    replacement: "[VALID_PHONE: $&]"
+  },
+  date: {
+    name: "Date: YYYY-MM-DD",
+    pattern: "^\\d{4}-\\d{2}-\\d{2}$",
+    flags: ["m"],
+    sampleText: "2026-11-16\n2026-02-30\n16-11-2026",
+    replacement: "[DATE: $&]"
+  },
+  "html-tags": {
+    name: "HTML Tags: <tag>...</tag>",
+    pattern: "<([a-z]+)[^>]*>.*?</\\1>",
+    flags: ["g"],
+    sampleText: "<p>Hello <b>World</b></p> and <div>Content</div>",
+    replacement: "[TAG: $1 -> $&]"
+  }
+};
+
+/**
+ * Parses and describes quantifiers (+, *, ?, {n}, {n,}, {n,m}, and lazy variants).
+ */
+function parseQuantifier(str, idx) {
+  if (idx >= str.length) return null;
+  const sub = str.slice(idx);
+
+  // Lazy quantifier checks (+?, *?, ??, {n,m}?)
+  if (sub.startsWith("+?")) return { raw: "+?", name: "1+ times, lazy", prefix: "One or more times (lazy)" };
+  if (sub.startsWith("*?")) return { raw: "*?", name: "0+ times, lazy", prefix: "Zero or more times (lazy)" };
+  if (sub.startsWith("??")) return { raw: "??", name: "Optional, lazy", prefix: "Zero or one time (optional, lazy)" };
+
+  // Greedy quantifier checks
+  if (sub.startsWith("+")) return { raw: "+", name: "1+ times", prefix: "One or more" };
+  if (sub.startsWith("*")) return { raw: "*", name: "0+ times", prefix: "Zero or more" };
+  if (sub.startsWith("?")) return { raw: "?", name: "Optional", prefix: "Zero or one (optional)" };
+
+  // Braced quantifiers {n}, {n,}, {n,m}
+  const match = sub.match(/^\{(\d+)(?:,(\d*))?\}(\??)/);
+  if (match) {
+    const raw = match[0];
+    const n = match[1];
+    const m = match[2];
+    const isLazy = match[3] === "?";
+    let name = "";
+    let prefix = "";
+
+    if (m === undefined) {
+      name = `Exactly ${n} times`;
+      prefix = `Exactly ${n}`;
+    } else if (m === "") {
+      name = `${n} or more times`;
+      prefix = `At least ${n}`;
+    } else {
+      name = `${n} to ${m} times`;
+      prefix = `Between ${n} and ${m}`;
+    }
+    if (isLazy) {
+      name += " (lazy)";
+      prefix += " (lazy)";
+    }
+    return { raw, name, prefix };
+  }
+
+  return null;
+}
+
+/**
+ * Plain-English pattern breakdown explainer for beginner-friendly learning.
+ * Faithfully handles: \d+, [A-Z], ^Hello, (ab)+ and generic token sequences.
+ * Clearly disclaims when complex arbitrary nesting cannot be parsed unambiguously.
+ */
+function explainRegexPattern(pattern) {
+  if (!pattern || !pattern.trim()) {
+    return {
+      tokens: [],
+      isComplex: false,
+      message: "Enter a regular expression pattern above to view a plain-English explanation."
+    };
+  }
+
+  const tokens = [];
+  let i = 0;
+  const len = pattern.length;
+  let isComplex = false;
+
+  while (i < len) {
+    const char = pattern[i];
+
+    // 1. Anchors
+    if (char === "^") {
+      tokens.push({
+        token: "^",
+        name: "Start Assertion",
+        desc: "Asserts position at the beginning of the string (or line with multiline flag 'm')."
+      });
+      i += 1;
+      continue;
+    }
+    if (char === "$") {
+      tokens.push({
+        token: "$",
+        name: "End Assertion",
+        desc: "Asserts position at the end of the string (or line with multiline flag 'm')."
+      });
+      i += 1;
+      continue;
+    }
+
+    // 2. Alternation
+    if (char === "|") {
+      tokens.push({
+        token: "|",
+        name: "Alternation (OR)",
+        desc: "Matches either the expression before or after the vertical bar."
+      });
+      i += 1;
+      continue;
+    }
+
+    // 3. Escaped tokens (\d, \w, \s, \b, \B, backreferences, etc.)
+    if (char === "\\") {
+      if (i + 1 >= len) {
+        tokens.push({ token: "\\", name: "Trailing Backslash", desc: "Incomplete escape character." });
+        i += 1;
+        break;
+      }
+      const nextChar = pattern[i + 1];
+
+      // Word boundary
+      if (nextChar === "b") {
+        tokens.push({ token: "\\b", name: "Word Boundary", desc: "Asserts a zero-width boundary between a word character (\\w) and non-word character." });
+        i += 2;
+        continue;
+      }
+      if (nextChar === "B") {
+        tokens.push({ token: "\\B", name: "Non-Word Boundary", desc: "Asserts position that is NOT at a word boundary." });
+        i += 2;
+        continue;
+      }
+
+      // Shorthand character classes with optional quantifier
+      const baseToken = "\\" + nextChar;
+      let baseName = "";
+      let baseDesc = "";
+
+      switch (nextChar) {
+        case "d":
+          baseName = "Digit";
+          baseDesc = "digits (0-9)";
+          break;
+        case "D":
+          baseName = "Non-Digit";
+          baseDesc = "characters that are not digits [^0-9]";
+          break;
+        case "w":
+          baseName = "Word Character";
+          baseDesc = "word characters (letter, digit, underscore)";
+          break;
+        case "W":
+          baseName = "Non-Word Character";
+          baseDesc = "non-word characters (punctuation, symbol, space)";
+          break;
+        case "s":
+          baseName = "Whitespace";
+          baseDesc = "whitespace characters (space, tab, newline)";
+          break;
+        case "S":
+          baseName = "Non-Whitespace";
+          baseDesc = "non-whitespace characters";
+          break;
+        default:
+          if (/\d/.test(nextChar)) {
+            tokens.push({
+              token: "\\" + nextChar,
+              name: `Backreference $${nextChar}`,
+              desc: `Matches the exact text previously captured by group #${nextChar}.`
+            });
+            i += 2;
+            continue;
+          }
+          baseName = `Literal '${nextChar}'`;
+          baseDesc = `literal '${nextChar}' character`;
+          break;
+      }
+
+      i += 2;
+
+      // Check for attached quantifier (+, *, ?, {n,m})
+      const q = parseQuantifier(pattern, i);
+      if (q) {
+        tokens.push({
+          token: baseToken + q.raw,
+          name: `${baseName} (${q.name})`,
+          desc: `${q.prefix} ${baseDesc}.`
+        });
+        i += q.raw.length;
+      } else {
+        tokens.push({
+          token: baseToken,
+          name: baseName,
+          desc: `Matches any ${baseDesc}.`
+        });
+      }
+      continue;
+    }
+
+    // 4. Dot (.)
+    if (char === ".") {
+      i += 1;
+      const q = parseQuantifier(pattern, i);
+      if (q) {
+        tokens.push({
+          token: "." + q.raw,
+          name: `Any Character (${q.name})`,
+          desc: `${q.prefix} any character except line breaks.`
+        });
+        i += q.raw.length;
+      } else {
+        tokens.push({
+          token: ".",
+          name: "Any Character",
+          desc: "Matches any single character except line terminators (unless 's' flag is set)."
+        });
+      }
+      continue;
+    }
+
+    // 5. Character Class [...]
+    if (char === "[") {
+      let closeIdx = i + 1;
+      if (pattern[closeIdx] === "^") closeIdx += 1;
+      if (pattern[closeIdx] === "]") closeIdx += 1;
+      while (closeIdx < len && (pattern[closeIdx] !== "]" || pattern[closeIdx - 1] === "\\")) {
+        closeIdx += 1;
+      }
+
+      if (closeIdx < len && pattern[closeIdx] === "]") {
+        const fullClass = pattern.slice(i, closeIdx + 1);
+        const inner = fullClass.slice(1, -1);
+        const isNegated = inner.startsWith("^");
+        const content = isNegated ? inner.slice(1) : inner;
+
+        let classDesc = "";
+        if (content === "A-Z") classDesc = "any uppercase letter";
+        else if (content === "a-z") classDesc = "any lowercase letter";
+        else if (content === "0-9") classDesc = "any digit (0 through 9)";
+        else if (content === "a-zA-Z" || content === "A-Za-z") classDesc = "any uppercase or lowercase letter";
+        else if (content.includes("a-z") && content.includes("A-Z") && content.includes("0-9")) classDesc = "any alphanumeric letter or digit";
+        else if (isNegated) classDesc = `any character EXCEPT characters in [${content}]`;
+        else classDesc = `any single character in the set [${content}]`;
+
+        i = closeIdx + 1;
+        const q = parseQuantifier(pattern, i);
+        if (q) {
+          tokens.push({
+            token: fullClass + q.raw,
+            name: `${isNegated ? "Negated Class" : "Character Class"} (${q.name})`,
+            desc: `${q.prefix} ${classDesc}.`
+          });
+          i += q.raw.length;
+        } else {
+          tokens.push({
+            token: fullClass,
+            name: isNegated ? "Negated Character Class" : "Character Class",
+            desc: `Matches ${classDesc}.`
+          });
+        }
+        continue;
+      } else {
+        isComplex = true;
+        tokens.push({ token: "[", name: "Unclosed Bracket", desc: "Opening bracket of character class." });
+        i += 1;
+        continue;
+      }
+    }
+
+    // 6. Groups (...)
+    if (char === "(") {
+      let depth = 1;
+      let closeIdx = i + 1;
+      while (closeIdx < len && depth > 0) {
+        if (pattern[closeIdx] === "\\" && closeIdx + 1 < len) {
+          closeIdx += 2;
+          continue;
+        }
+        if (pattern[closeIdx] === "(") depth += 1;
+        if (pattern[closeIdx] === ")") depth -= 1;
+        closeIdx += 1;
+      }
+
+      if (depth === 0) {
+        const fullGroup = pattern.slice(i, closeIdx);
+        let groupName = "Capturing Group";
+        let groupDesc = "";
+        const innerContent = fullGroup.slice(1, -1);
+
+        if (fullGroup.startsWith("(?<")) {
+          const nameEnd = fullGroup.indexOf(">");
+          const gName = nameEnd > 3 ? fullGroup.slice(3, nameEnd) : "name";
+          groupName = `Named Group <${gName}>`;
+          groupDesc = `Captures matched text under the property name '${gName}'.`;
+        } else if (fullGroup.startsWith("(?:")) {
+          groupName = "Non-Capturing Group";
+          groupDesc = "Groups sub-expressions without creating a numbered capture group.";
+        } else if (fullGroup.startsWith("(?=")) {
+          groupName = "Positive Lookahead";
+          groupDesc = "Asserts sub-pattern matches ahead without consuming characters.";
+        } else if (fullGroup.startsWith("(?!")) {
+          groupName = "Negative Lookahead";
+          groupDesc = "Asserts sub-pattern does NOT match ahead.";
+        } else if (fullGroup.startsWith("(?<=")) {
+          groupName = "Positive Lookbehind";
+          groupDesc = "Asserts sub-pattern matches behind without consuming characters.";
+        } else if (fullGroup.startsWith("(?<!")) {
+          groupName = "Negative Lookbehind";
+          groupDesc = "Asserts sub-pattern does NOT match behind.";
+        } else {
+          groupName = "Capturing Group";
+          groupDesc = `Captures group (${innerContent}) into a numbered capture group.`;
+        }
+
+        i = closeIdx;
+        const q = parseQuantifier(pattern, i);
+        if (q) {
+          tokens.push({
+            token: fullGroup + q.raw,
+            name: `${groupName} (${q.name})`,
+            desc: `One or more repetitions of the group ${innerContent}.`
+          });
+          i += q.raw.length;
+        } else {
+          tokens.push({
+            token: fullGroup,
+            name: groupName,
+            desc: groupDesc
+          });
+        }
+        continue;
+      } else {
+        isComplex = true;
+        tokens.push({ token: "(", name: "Unclosed Group", desc: "Opening parenthesis of sub-group." });
+        i += 1;
+        continue;
+      }
+    }
+
+    // 7. Literal text sequence
+    const litStart = i;
+    while (
+      i < len &&
+      !"^$|\\.[( ".includes(pattern[i]) &&
+      !["+", "*", "?", "{"].includes(pattern[i])
+    ) {
+      i += 1;
+    }
+
+    if (i > litStart) {
+      const lit = pattern.slice(litStart, i);
+      const q = parseQuantifier(pattern, i);
+      if (q && lit.length === 1) {
+        tokens.push({
+          token: lit + q.raw,
+          name: `Literal '${lit}' (${q.name})`,
+          desc: `${q.prefix} occurrences of literal '${lit}'.`
+        });
+        i += q.raw.length;
+      } else {
+        tokens.push({
+          token: lit,
+          name: "Literal Text",
+          desc: `Matches literal text "${lit}".`
+        });
+      }
+      continue;
+    }
+
+    // Lone symbol or whitespace
+    tokens.push({
+      token: pattern[i],
+      name: `Literal '${pattern[i]}'`,
+      desc: `Matches literal character '${pattern[i]}'.`
+    });
+    i += 1;
+  }
+
+  return {
+    tokens,
+    isComplex,
+    message: isComplex
+      ? "Complex or nested expression detected. Below is an educational best-effort breakdown."
+      : "Showing token-by-token plain-English breakdown."
+  };
+}
+
 if (typeof document !== "undefined") {
   document.addEventListener("DOMContentLoaded", () => {
     // Top-level app status elements
@@ -1279,6 +1699,38 @@ if (typeof document !== "undefined") {
     const cheatsheetCountPill = document.getElementById("cheatsheet-count-pill");
     const mistakeTestButtons = document.querySelectorAll(".js-test-mistake");
 
+    // Advanced Regex Playground elements (Day 6)
+    const playgroundPatternInput = document.getElementById("playground-pattern");
+    const playgroundFlagCheckboxes = document.querySelectorAll(".playground-flag-checkbox");
+    const playgroundFlagsPreview = document.getElementById("playground-flags-preview");
+    const playgroundSampleTextInput = document.getElementById("playground-sample-text");
+    const playgroundHighlightOutput = document.getElementById("playground-highlight-output");
+    const playgroundErrorBanner = document.getElementById("playground-error-banner");
+    const playgroundStatsPill = document.getElementById("playground-stats-pill");
+    const playgroundTextMeta = document.getElementById("playground-text-meta");
+    const playgroundReplacementPattern = document.getElementById("playground-replacement-pattern");
+    const playgroundReplacementOutput = document.getElementById("playground-replacement-output");
+    const playgroundReplacementCount = document.getElementById("playground-replacement-count");
+    const playgroundReplacementNote = document.getElementById("playground-replacement-note");
+    const btnTokenInserts = document.querySelectorAll(".btn-token-insert");
+    const btnCopyReplacement = document.getElementById("btn-copy-replacement");
+    const statTotalMatches = document.getElementById("stat-total-matches");
+    const statUniqueMatches = document.getElementById("stat-unique-matches");
+    const statPositions = document.getElementById("stat-positions");
+    const statLengths = document.getElementById("stat-lengths");
+    const statExecTime = document.getElementById("stat-exec-time");
+    const statStatusBadge = document.getElementById("stat-status-badge");
+    const playgroundGroupCount = document.getElementById("playground-group-count");
+    const playgroundGroupsInspector = document.getElementById("playground-groups-inspector");
+    const playgroundExplanationContent = document.getElementById("playground-explanation-content");
+    const playgroundExplanationMode = document.getElementById("playground-explanation-mode");
+    const playgroundExampleSelect = document.getElementById("playground-example-select");
+    const btnLoadPlaygroundExample = document.getElementById("btn-load-playground-example");
+    const btnCopyPlaygroundPattern = document.getElementById("btn-copy-playground-pattern");
+    const btnCopyPlaygroundResults = document.getElementById("btn-copy-playground-results");
+    const btnResetPlayground = document.getElementById("btn-reset-playground");
+    const btnClearPlayground = document.getElementById("btn-clear-playground");
+
     let activeCategory = "All";
     let searchQuery = "";
     let currentGeneratorLang = "javascript";
@@ -1292,7 +1744,7 @@ if (typeof document !== "undefined") {
     }
 
     if (verifyValue) {
-      verifyValue.textContent = "JS Verified (Day 5)";
+      verifyValue.textContent = "JS Verified (Day 6)";
     }
 
     // 2. Navigation link active state
@@ -2193,15 +2645,478 @@ if (typeof document !== "undefined") {
       });
     });
 
-    // Initial render of Live Regex Tester, Pattern Library, Code Generator and Cheat Sheet
+    // 11. Day 6: Advanced Regex Playground logic, inspector, replacement & explanation
+    function getPlaygroundFlags() {
+      const selected = [];
+      playgroundFlagCheckboxes.forEach((cb) => {
+        if (cb.checked) {
+          selected.push(cb.value);
+        }
+      });
+      return selected.join("");
+    }
+
+    function checkUnsupportedReplacementSyntax(replacement) {
+      if (!replacement) return null;
+
+      // Check for Python/PHP style \1, \2, \g<name>, \g<1>
+      const slashBackref = replacement.match(/\\[0-9]|\\[gG]<[^>]+>/);
+      if (slashBackref) {
+        return `⚠️ Unsupported backreference "${slashBackref[0]}". In JavaScript .replace(), use $1, $2 (or $<name>) instead of \\1 or \\g<name>.`;
+      }
+
+      // Check for $0 which is common in Java/Bash but not standard JS ($& is standard in JS)
+      if (/\$0(?!\d)/.test(replacement)) {
+        return `⚠️ Notice: "$0" is not standard in JavaScript .replace(). Use "$&" to insert the entire matched substring.`;
+      }
+
+      return null;
+    }
+
+    function renderPlaygroundGroups(matches, container) {
+      if (!container) return;
+      if (!matches || matches.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" style="padding: 1.25rem; text-align: center;">
+            <span class="empty-icon" aria-hidden="true">🔍</span>
+            <p style="margin: 0.35rem 0 0; color: var(--text-muted); font-size: 0.88rem;">
+              No matches found to inspect. Enter a matching pattern and text above.
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = matches.map((m, idx) => {
+        let groupsHtml = "";
+
+        // Numbered groups
+        if (m.numberedGroups && m.numberedGroups.length > 0) {
+          groupsHtml += m.numberedGroups.map((val, gIdx) => {
+            const isMatched = val !== undefined && val !== null;
+            return `
+              <div class="inspector-group-row">
+                <span class="group-label">Group $${gIdx + 1}:</span>
+                <span class="group-val ${isMatched ? "" : "group-null"}">
+                  ${isMatched ? escapeHtml(val) : '<span class="group-tag">Unmatched (null)</span>'}
+                </span>
+              </div>
+            `;
+          }).join("");
+        }
+
+        // Named groups
+        if (m.namedGroups && Object.keys(m.namedGroups).length > 0) {
+          groupsHtml += Object.entries(m.namedGroups).map(([gName, val]) => {
+            const isMatched = val !== undefined && val !== null;
+            return `
+              <div class="inspector-group-row">
+                <span class="group-label">&lt;${escapeHtml(gName)}&gt;:</span>
+                <span class="group-val ${isMatched ? "" : "group-null"}">
+                  ${isMatched ? escapeHtml(val) : '<span class="group-tag">Unmatched (null)</span>'}
+                </span>
+              </div>
+            `;
+          }).join("");
+        }
+
+        if (!groupsHtml) {
+          groupsHtml = `
+            <div class="inspector-group-row">
+              <span class="group-label" style="color: var(--text-muted);">Capture Groups:</span>
+              <span class="group-val group-null">None defined in pattern</span>
+            </div>
+          `;
+        }
+
+        const matchTextDisplay = m.text.length > 0 ? escapeHtml(m.text) : "(zero-length match)";
+
+        return `
+          <article class="inspector-match-card">
+            <div class="inspector-match-head">
+              <span class="inspector-match-title">Match #${idx + 1}</span>
+              <span class="inspector-match-badge">[${m.start} – ${m.end}] · ${m.length} chars</span>
+            </div>
+            <div class="inspector-match-body">
+              <code>${matchTextDisplay}</code>
+            </div>
+            <div class="inspector-groups-table">
+              ${groupsHtml}
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderPlaygroundExplanation(pattern, container) {
+      if (!container) return;
+      const explanation = explainRegexPattern(pattern);
+
+      if (playgroundExplanationMode) {
+        playgroundExplanationMode.textContent = explanation.isComplex
+          ? "Complex / Best Effort"
+          : `${explanation.tokens.length} token${explanation.tokens.length === 1 ? "" : "s"}`;
+      }
+
+      if (explanation.tokens.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" style="padding: 1.25rem; text-align: center;">
+            <span class="empty-icon" aria-hidden="true">💡</span>
+            <p style="margin: 0.35rem 0 0; color: var(--text-muted); font-size: 0.88rem;">
+              ${escapeHtml(explanation.message)}
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      const tokensHtml = explanation.tokens.map((tok) => {
+        return `
+          <div class="explanation-token-item">
+            <div class="explanation-token-head">
+              <code class="token-badge">${escapeHtml(tok.token)}</code>
+              <span class="token-name">${escapeHtml(tok.name)}</span>
+            </div>
+            <p class="token-desc">${escapeHtml(tok.desc)}</p>
+          </div>
+        `;
+      }).join("");
+
+      const disclaimerHtml = `
+        <div class="explanation-disclaimer">
+          ℹ️ ${escapeHtml(explanation.message)}
+        </div>
+      `;
+
+      container.innerHTML = tokensHtml + disclaimerHtml;
+    }
+
+    let lastPlaygroundMatches = [];
+
+    function evaluatePlayground() {
+      if (!playgroundPatternInput) return;
+
+      const pattern = playgroundPatternInput.value;
+      const flags = getPlaygroundFlags();
+      const sampleText = playgroundSampleTextInput?.value || "";
+      const replacementPattern = playgroundReplacementPattern?.value ?? "";
+
+      // Update flags preview display
+      if (playgroundFlagsPreview) {
+        playgroundFlagsPreview.textContent = flags || "none";
+      }
+
+      // Update sample text length meta
+      if (playgroundTextMeta) {
+        playgroundTextMeta.textContent = `${sampleText.length} character${sampleText.length === 1 ? "" : "s"}`;
+      }
+
+      // Handle empty pattern
+      if (!pattern) {
+        if (playgroundErrorBanner) {
+          playgroundErrorBanner.hidden = true;
+          playgroundErrorBanner.textContent = "";
+        }
+        if (statStatusBadge) statStatusBadge.textContent = "Waiting for pattern";
+        if (playgroundHighlightOutput) playgroundHighlightOutput.innerHTML = escapeHtml(sampleText);
+        if (statTotalMatches) statTotalMatches.textContent = "0";
+        if (statUniqueMatches) statUniqueMatches.textContent = "0";
+        if (statPositions) statPositions.textContent = "None";
+        if (statLengths) statLengths.textContent = "None";
+        if (statExecTime) statExecTime.textContent = "0 ms";
+        if (playgroundStatsPill) playgroundStatsPill.textContent = "0 matches · 0 ms";
+        if (playgroundGroupCount) playgroundGroupCount.textContent = "0 groups";
+        if (playgroundReplacementOutput) playgroundReplacementOutput.textContent = sampleText;
+        if (playgroundReplacementCount) playgroundReplacementCount.textContent = "0 replacements";
+        if (playgroundReplacementNote) playgroundReplacementNote.hidden = true;
+        renderPlaygroundGroups([], playgroundGroupsInspector);
+        renderPlaygroundExplanation("", playgroundExplanationContent);
+        lastPlaygroundMatches = [];
+        return;
+      }
+
+      // Validate RegExp compilation
+      let regex = null;
+      let compileError = null;
+      try {
+        regex = new RegExp(pattern, flags);
+      } catch (err) {
+        compileError = err.message;
+      }
+
+      if (compileError || !regex) {
+        if (playgroundErrorBanner) {
+          playgroundErrorBanner.hidden = false;
+          playgroundErrorBanner.textContent = `Regex Error: ${compileError}`;
+        }
+        if (statStatusBadge) statStatusBadge.textContent = "Invalid Syntax";
+        if (playgroundHighlightOutput) playgroundHighlightOutput.innerHTML = escapeHtml(sampleText);
+        if (statTotalMatches) statTotalMatches.textContent = "0";
+        if (statUniqueMatches) statUniqueMatches.textContent = "0";
+        if (statPositions) statPositions.textContent = "Error";
+        if (statLengths) statLengths.textContent = "Error";
+        if (statExecTime) statExecTime.textContent = "--";
+        if (playgroundStatsPill) playgroundStatsPill.textContent = "Syntax Error";
+        if (playgroundGroupCount) playgroundGroupCount.textContent = "0 groups";
+        if (playgroundReplacementOutput) playgroundReplacementOutput.textContent = sampleText;
+        if (playgroundReplacementCount) playgroundReplacementCount.textContent = "0 replacements";
+        renderPlaygroundGroups([], playgroundGroupsInspector);
+        renderPlaygroundExplanation(pattern, playgroundExplanationContent);
+        lastPlaygroundMatches = [];
+        return;
+      }
+
+      // Hide error banner when valid
+      if (playgroundErrorBanner) {
+        playgroundErrorBanner.hidden = true;
+        playgroundErrorBanner.textContent = "";
+      }
+      if (statStatusBadge) statStatusBadge.textContent = "Active";
+
+      // Measure execution time with high precision
+      const tStart = performance.now();
+      const { matches, truncated } = collectMatches(regex, sampleText);
+      const tEnd = performance.now();
+      const execTime = tEnd - tStart;
+      const execTimeDisplay = execTime < 0.1 ? "< 0.1 ms" : `${execTime.toFixed(2)} ms`;
+
+      lastPlaygroundMatches = matches;
+
+      // Update match highlighting
+      if (playgroundHighlightOutput) {
+        playgroundHighlightOutput.innerHTML = buildHighlightedHtml(sampleText, matches);
+      }
+
+      // Statistics calculations
+      const totalMatches = matches.length;
+      const uniqueMatches = new Set(matches.map((m) => m.text)).size;
+
+      let positionsText = "None";
+      if (matches.length > 0) {
+        positionsText = `${matches[0].start} .. ${matches[matches.length - 1].end}`;
+      }
+
+      let lengthsText = "None";
+      if (matches.length > 0) {
+        const lengths = matches.map((m) => m.length);
+        const minL = Math.min(...lengths);
+        const maxL = Math.max(...lengths);
+        const avgL = (lengths.reduce((a, b) => a + b, 0) / lengths.length).toFixed(1);
+        lengthsText = `Min: ${minL}, Max: ${maxL}, Avg: ${avgL}`;
+      }
+
+      if (statTotalMatches) statTotalMatches.textContent = String(totalMatches) + (truncated ? "+" : "");
+      if (statUniqueMatches) statUniqueMatches.textContent = String(uniqueMatches);
+      if (statPositions) statPositions.textContent = positionsText;
+      if (statLengths) statLengths.textContent = lengthsText;
+      if (statExecTime) statExecTime.textContent = execTimeDisplay;
+
+      if (playgroundStatsPill) {
+        playgroundStatsPill.textContent = `${totalMatches} match${totalMatches === 1 ? "" : "es"} · ${execTimeDisplay}`;
+      }
+
+      // Capture Group count & Inspector rendering
+      const totalGroupsDefined = matches.length > 0 ? (matches[0].numberedGroups?.length || 0) + (matches[0].namedGroups ? Object.keys(matches[0].namedGroups).length : 0) : 0;
+      if (playgroundGroupCount) {
+        playgroundGroupCount.textContent = `${totalGroupsDefined} group${totalGroupsDefined === 1 ? "" : "s"} / match`;
+      }
+      renderPlaygroundGroups(matches, playgroundGroupsInspector);
+
+      // Plain-English Explanation breakdown
+      renderPlaygroundExplanation(pattern, playgroundExplanationContent);
+
+      // Replacement Playground logic & unsupported syntax detection
+      const unsupportedWarning = checkUnsupportedReplacementSyntax(replacementPattern);
+      if (playgroundReplacementNote) {
+        if (unsupportedWarning) {
+          playgroundReplacementNote.hidden = false;
+          playgroundReplacementNote.textContent = unsupportedWarning;
+        } else {
+          playgroundReplacementNote.hidden = true;
+          playgroundReplacementNote.textContent = "";
+        }
+      }
+
+      let replacedText = "";
+      let replacedCount = 0;
+      try {
+        const replaceRegex = new RegExp(pattern, flags);
+        replacedText = sampleText.replace(replaceRegex, replacementPattern);
+        if (replaceRegex.global) {
+          replacedCount = matches.length;
+        } else {
+          replacedCount = matches.length > 0 ? 1 : 0;
+        }
+      } catch (err) {
+        replacedText = `Replacement error: ${err.message}`;
+      }
+
+      if (playgroundReplacementOutput) {
+        playgroundReplacementOutput.textContent = replacedText;
+      }
+      if (playgroundReplacementCount) {
+        playgroundReplacementCount.textContent = `${replacedCount} replacement${replacedCount === 1 ? "" : "s"}`;
+      }
+    }
+
+    // Playground input change listeners
+    playgroundPatternInput?.addEventListener("input", evaluatePlayground);
+    playgroundSampleTextInput?.addEventListener("input", evaluatePlayground);
+    playgroundReplacementPattern?.addEventListener("input", evaluatePlayground);
+
+    playgroundFlagCheckboxes.forEach((cb) => {
+      cb.addEventListener("change", evaluatePlayground);
+    });
+
+    // Helper Token insertion buttons in replacement playground
+    btnTokenInserts.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const token = btn.getAttribute("data-token");
+        if (!token || !playgroundReplacementPattern) return;
+
+        const input = playgroundReplacementPattern;
+        const start = input.selectionStart || input.value.length;
+        const end = input.selectionEnd || input.value.length;
+        const currentVal = input.value;
+
+        input.value = currentVal.substring(0, start) + token + currentVal.substring(end);
+        input.focus();
+        input.selectionStart = input.selectionEnd = start + token.length;
+
+        evaluatePlayground();
+      });
+    });
+
+    // Copy Replacement Result button
+    btnCopyReplacement?.addEventListener("click", () => {
+      if (!playgroundReplacementOutput) return;
+      const textToCopy = playgroundReplacementOutput.textContent || "";
+      copyToClipboard(textToCopy, () => {
+        const originalText = btnCopyReplacement.innerHTML;
+        btnCopyReplacement.textContent = "✓ Copied!";
+        window.setTimeout(() => {
+          btnCopyReplacement.innerHTML = originalText;
+        }, 1800);
+        showToast("Copied replacement result to clipboard!", "📋");
+      });
+    });
+
+    // Load Preset Example into Playground
+    function loadSelectedPlaygroundExample(key) {
+      const example = PLAYGROUND_EXAMPLES[key];
+      if (!example) return;
+
+      if (playgroundPatternInput) playgroundPatternInput.value = example.pattern;
+      if (playgroundSampleTextInput) playgroundSampleTextInput.value = example.sampleText;
+      if (playgroundReplacementPattern) playgroundReplacementPattern.value = example.replacement || "[$&]";
+
+      playgroundFlagCheckboxes.forEach((cb) => {
+        cb.checked = (example.flags || []).includes(cb.value);
+      });
+
+      evaluatePlayground();
+      showToast(`Loaded example "${example.name}"!`, "⚡");
+      playgroundPatternInput?.focus();
+    }
+
+    playgroundExampleSelect?.addEventListener("change", (e) => {
+      loadSelectedPlaygroundExample(e.target.value);
+    });
+
+    btnLoadPlaygroundExample?.addEventListener("click", () => {
+      const selected = playgroundExampleSelect?.value;
+      if (selected) {
+        loadSelectedPlaygroundExample(selected);
+      } else {
+        showToast("Please choose an example pattern from the dropdown first.", "ℹ️");
+      }
+    });
+
+    // Copy Pattern button
+    btnCopyPlaygroundPattern?.addEventListener("click", () => {
+      if (!playgroundPatternInput) return;
+      const pattern = playgroundPatternInput.value;
+      const flags = getPlaygroundFlags();
+      const fullRegex = `/${pattern}/${flags}`;
+
+      copyToClipboard(fullRegex, () => {
+        const originalText = btnCopyPlaygroundPattern.innerHTML;
+        btnCopyPlaygroundPattern.textContent = "✓ Copied!";
+        window.setTimeout(() => {
+          btnCopyPlaygroundPattern.innerHTML = originalText;
+        }, 1800);
+        showToast(`Copied ${fullRegex} to clipboard!`, "📋");
+      });
+    });
+
+    // Copy Results button (copies structured match stats, groups & replacement summary)
+    btnCopyPlaygroundResults?.addEventListener("click", () => {
+      const pattern = playgroundPatternInput?.value || "";
+      const flags = getPlaygroundFlags();
+      const replacement = playgroundReplacementPattern?.value || "";
+      const replacedText = playgroundReplacementOutput?.textContent || "";
+
+      let summary = `Regex Lab – Advanced Playground Results\n`;
+      summary += `Pattern: /${pattern}/${flags}\n`;
+      summary += `Matches: ${lastPlaygroundMatches.length} total\n\n`;
+
+      if (lastPlaygroundMatches.length > 0) {
+        summary += `--- Matches Breakdown ---\n`;
+        lastPlaygroundMatches.forEach((m, idx) => {
+          summary += `#${idx + 1}: "${m.text}" [${m.start}–${m.end}] (${m.length} chars)\n`;
+          if (m.numberedGroups?.length) {
+            m.numberedGroups.forEach((gVal, gIdx) => {
+              summary += `  Group $${gIdx + 1}: ${gVal !== undefined ? gVal : "(unmatched)"}\n`;
+            });
+          }
+          if (m.namedGroups) {
+            Object.entries(m.namedGroups).forEach(([gName, gVal]) => {
+              summary += `  Group <${gName}>: ${gVal !== undefined ? gVal : "(unmatched)"}\n`;
+            });
+          }
+        });
+      }
+
+      summary += `\n--- Replacement Result ---\n`;
+      summary += `Replacement Pattern: ${replacement}\n`;
+      summary += `Output:\n${replacedText}\n`;
+
+      copyToClipboard(summary, () => {
+        const originalText = btnCopyPlaygroundResults.innerHTML;
+        btnCopyPlaygroundResults.textContent = "✓ Copied!";
+        window.setTimeout(() => {
+          btnCopyPlaygroundResults.innerHTML = originalText;
+        }, 1800);
+        showToast("Copied full playground results summary!", "📋");
+      });
+    });
+
+    // Reset Playground button
+    btnResetPlayground?.addEventListener("click", () => {
+      loadSelectedPlaygroundExample("numbers");
+      showToast("Reset playground to default state.", "🔄");
+    });
+
+    // Clear Playground button
+    btnClearPlayground?.addEventListener("click", () => {
+      if (playgroundPatternInput) playgroundPatternInput.value = "";
+      if (playgroundSampleTextInput) playgroundSampleTextInput.value = "";
+      if (playgroundReplacementPattern) playgroundReplacementPattern.value = "";
+      evaluatePlayground();
+      playgroundPatternInput?.focus();
+      showToast("Cleared playground inputs.", "🧹");
+    });
+
+    // Initial render of Live Regex Tester, Pattern Library, Code Generator, Cheat Sheet and Playground
     evaluateRegex();
     renderPatternCards();
     generateCode();
     renderCheatSheetCards();
+    evaluatePlayground();
 
     // Console verification message
     console.info(
-      "%cRegex Lab – Developer Toolkit%c initialized successfully (Day 5 · Interactive Regex Cheat Sheet).",
+      "%cRegex Lab – Developer Toolkit%c initialized successfully (Day 6 · Advanced Regex Playground).",
       "color: #a855f7; font-weight: bold;",
       "color: #93c5fd;"
     );
@@ -2215,6 +3130,8 @@ if (typeof module !== "undefined" && module.exports) {
     buildHighlightedHtml,
     PATTERN_LIBRARY,
     CHEATSHEET_ITEMS,
+    PLAYGROUND_EXAMPLES,
+    explainRegexPattern,
     generateJavaScriptCode,
     generatePythonCode,
     generatePhpCode,

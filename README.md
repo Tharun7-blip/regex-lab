@@ -2,7 +2,7 @@
 
 A modern, client-side developer toolkit for crafting, testing, and understanding regular expressions directly in the browser.
 
-> **Project Status:** Day 5 of 7 — Interactive Regex Cheat Sheet Implemented
+> **Project Status:** Day 6 of 7 — Advanced Regex Playground Implemented
 
 ---
 
@@ -14,6 +14,7 @@ A modern, client-side developer toolkit for crafting, testing, and understanding
 - **Day 3:** Built the **Regex Pattern Library** featuring 26 curated, verified regular expressions across 7 essential categories, real-time search, category filtering, one-click clipboard copying with toast notifications, and seamless loading into the Live Regex Tester.
 - **Day 4:** Built the **Regex Code Generator** to export regular expressions into ready-to-use, syntactically appropriate validation and matching code for **JavaScript**, **Python**, **PHP**, and **Java**, complete with language-specific escaping, customizable test strings, instant copy, and one-click integration from the Pattern Library.
 - **Day 5:** Built the **Interactive Regex Cheat Sheet** with 43 syntax reference cards organized across 8 categories, instant live search and category filtering, deep integration with the Live Tester and Code Generator, and an interactive **Common Beginner Mistakes Guide** with 5 practical lessons.
+- **Day 6:** Built the **Advanced Regex Playground** featuring an advanced editor, capture group inspector with unmatched optional group support, beginner-friendly plain-English regex explainer, live replacement playground with JavaScript reference helpers (`$1`, `$&`) and unsupported syntax warnings, match statistics dashboard with execution timing, and 5 preset examples.
 
 ---
 
@@ -89,11 +90,60 @@ A modern, client-side developer toolkit for crafting, testing, and understanding
 
 ---
 
+## Day 6 Features (Advanced Regex Playground)
+
+- **Advanced Regex Editor & Live Highlighting:**
+  - Full-featured regular expression editor with pattern input, `/` delimiters, and flags preview.
+  - Interactive flag controls for `g` (global), `i` (case-insensitive), `m` (multiline), `s` (dotAll), and `u` (unicode).
+  - Synchronized highlight backdrop overlay mirroring the test text textarea without text-jumping or misalignments.
+  - Robust error handling: catches invalid syntax with clear inline error messages and prevents crashes.
+- **Capture Group Inspector:**
+  - Match cards displaying match index, start and end offsets (`[start – end]`), match length, and full text.
+  - Detailed numbered capture groups breakdown (`Group $1`, `Group $2`, etc.).
+  - Named capture groups support (e.g. `<year>`, `<month>`, `<day>`).
+  - Graceful unmatched group handling: optional groups that did not participate in a match display as `Unmatched (null)` with distinct styling rather than failing or showing undefined.
+- **Plain-English Regex Explainer:**
+  - Educational tokenizer breaking down regular expressions into plain-English component explanations.
+  - Handles shorthand classes (`\d+` $\rightarrow$ "One or more digits"), character sets (`[A-Z]` $\rightarrow$ "Any uppercase letter"), anchors (`^Hello` $\rightarrow$ "Text beginning with Hello"), and groups (`(ab)+` $\rightarrow$ "One or more repetitions of group ab").
+  - Identifies lookarounds (`(?=...)`, `(?!...)`, `(?<=...)`, `(?<!...)`), non-capturing groups (`(?:...)`), named groups (`(?<name>...)`), backreferences (`\1`), and greedy/lazy quantifiers.
+  - Transparent complexity disclaimer: clearly identifies when intricate arbitrary nesting is parsed at best educational effort without inventing incorrect explanations.
+- **Replacement Playground:**
+  - Live preview box updating instantly as replacement patterns and test text are edited.
+  - Full support for JavaScript replacement syntax:
+    - `$&` — inserts matched substring.
+    - `$1`, `$2` — inserts numbered capture groups.
+    - `$<name>` — inserts named capture group.
+    - ``$` `` — inserts text preceding match.
+    - `$'` — inserts text following match.
+    - `$$` — inserts a literal `$` sign.
+  - One-click helper pills to quickly insert replacement tokens into the input.
+  - Unsupported syntax detection: warns developers if non-JavaScript backreferences like `\1` or `$0` are typed, explaining standard JS replacement syntax.
+  - Dedicated **📋 Copy Result** button with animated feedback.
+- **Match Statistics Dashboard:**
+  - Total match count (with infinite loop protection on zero-length matches).
+  - Unique matched values count.
+  - Indices range (`first .. last`).
+  - Match lengths analytics (minimum, maximum, and average match length).
+  - High-precision execution timing measured in milliseconds via `performance.now()`.
+- **5 Built-in Preset Examples:**
+  - **Numbers:** `\d+`
+  - **Email:** RFC 5322 standard pattern
+  - **Indian Mobile:** `^(?:\+91[- ]?)?[6-9]\d{9}$`
+  - **Date:** `^\d{4}-\d{2}-\d{2}$`
+  - **HTML Tags:** `<([a-z]+)[^>]*>.*?</\1>`
+- **Toolbar Actions:**
+  - **📋 Copy Pattern:** Copies full `/<pattern>/<flags>` expression.
+  - **📋 Copy Results:** Generates and copies a structured breakdown of matches, groups, statistics, and replacement text.
+  - **🔄 Reset:** Restores default playground state.
+  - **🧹 Clear:** Clears pattern and text inputs.
+
+---
+
 ## Technology Stack
 
 - **HTML5** — Semantic page structure, accessible ARIA attributes
 - **CSS3** — Dark theme, purple/blue accents, glassmorphism cards, responsive CSS Grid and Flexbox layout
-- **Vanilla JavaScript** — Real-time `RegExp` engine, multi-language code generation, cheat sheet catalog, clipboard management, toast system (zero external libraries, no frameworks, no database)
+- **Vanilla JavaScript** — Real-time `RegExp` engine, educational tokenizer, replacement engine, statistics computation, clipboard management, toast system (zero external libraries, no frameworks, no database)
 
 ---
 
@@ -104,7 +154,7 @@ A modern, client-side developer toolkit for crafting, testing, and understanding
 - [x] **Day 3:** Pattern Library *(Active)* — 26 curated developer snippets across 7 categories with live search, copy, and tester loading
 - [x] **Day 4:** Code Generator *(Active)* — Multi-language code generation for JavaScript, Python, PHP, and Java
 - [x] **Day 5:** Interactive Regex Cheat Sheet *(Active)* — 43 reference cards across 8 categories, search, filtering, and Common Mistakes guide
-- [ ] **Day 6:** Regex Explainer — Token-by-token plain-English breakdown of patterns
+- [x] **Day 6:** Advanced Regex Playground *(Active)* — Capture group inspector, replacement preview, regex explainer, match statistics, and presets
 - [ ] **Day 7:** Saved Snippets & Test Cases — LocalStorage-backed bookmarks and test case suite
 
 ---
@@ -172,3 +222,9 @@ Because Regex Lab uses pure HTML5, CSS3, and Vanilla JavaScript, no build tools 
    - Click **💻 Code** to open and generate code for the pattern in the Code Generator.
    - Click **⚡ Try in Tester** to instantly populate the pattern, flags, and example text into the Live Regex Tester.
    - Review the **Common Beginner Mistakes Guide** to understand and test fixes for the 5 most common regex pitfalls with one-click **⚡ Try Correct in Tester** buttons.
+5. **Advanced Regex Playground:**
+   - Choose a pattern from the **Load Example** dropdown (`Numbers`, `Email`, `Indian Mobile`, `Date`, `HTML Tags`) or input custom expressions and flags.
+   - Inspect capture groups in the **Capture Group Inspector**, with start-end index ranges, length, and safe handling of optional unmatched groups.
+   - View the plain-English token breakdown in the **Regex Explanation Panel**.
+   - Test text substitution in the **Live Text Replacement** panel, use token helpers (`$&`, `$1`, `$<name>`), and copy the replacement output with one click.
+   - Review comprehensive match statistics including total/unique matches, indices range, lengths, and execution time.
